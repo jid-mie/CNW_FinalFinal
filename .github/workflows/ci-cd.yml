@@ -1,0 +1,152 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravel_clean_arch_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, mysql, pdo_mysql, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install PHP deps
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Prepare app
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan config:clear
+
+      - name: Static checks
+        run: |
+          composer validate --strict
+          ./vendor/bin/pint --test
+
+      - name: DB migrate
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravel_clean_arch_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan migrate --force
+
+      - name: Tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravel_clean_arch_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: composer test
+
+      - name: Build assets
+        run: npm run build
+
+  deploy:
+    name: Deploy production
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, mysql, pdo_mysql
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install deps & build
+        run: |
+          composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-progress
+          npm ci
+          npm run build
+          rm -rf node_modules
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Sync files
+        run: |
+          rsync -az --delete \
+            --exclude='.env' \
+            --exclude='storage/' \
+            --exclude='bootstrap/cache/*.php' \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
+
+      - name: Run remote release cmds
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && \
+            php artisan down || true && \
+            php artisan migrate --force && \
+            php artisan config:cache && \
+            php artisan route:cache && \
+            php artisan view:cache && \
+            php artisan queue:restart && \
+            php artisan up"
