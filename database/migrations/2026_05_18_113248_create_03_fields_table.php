@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->enum('status', ['active', 'maintenance', 'inactive'])->default('active');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['owner_id', 'sport_id']);
             $table->index('status');
