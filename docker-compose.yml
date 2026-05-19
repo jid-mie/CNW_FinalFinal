@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ${DOCKER_TARGET:-base}
+    container_name: playmanagement-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - playmanagement_vendor:/var/www/vendor
+      - playmanagement_node_modules:/var/www/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - playmanagement
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+
+  nginx:
+    image: nginx:alpine
+    container_name: playmanagement-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - .:/var/www
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - playmanagement
+
+  db:
+    image: postgres:16-alpine
+    container_name: playmanagement-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: playmanagement
+      POSTGRES_USER: playmanagement
+      POSTGRES_PASSWORD: playmanagement_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U playmanagement"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - playmanagement
+
+volumes:
+  postgres_data:
+  playmanagement_vendor:
+  playmanagement_node_modules:
+
+networks:
+  playmanagement:
+    driver: bridge

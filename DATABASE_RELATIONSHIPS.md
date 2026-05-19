@@ -85,6 +85,7 @@ Lưu tài khoản người dùng.
 | remember_token | varchar | nullable | Token ghi nhớ |
 | created_at | timestamp | nullable | Ngày tạo |
 | updated_at | timestamp | nullable | Ngày cập nhật |
+| deleted_at | timestamp | nullable | Ngày xóa (Soft delete) |
 
 ### Vai trò
 
@@ -121,6 +122,7 @@ Lưu loại môn thể thao.
 | is_active | boolean | default true | Trạng thái hoạt động |
 | created_at | timestamp | nullable | Ngày tạo |
 | updated_at | timestamp | nullable | Ngày cập nhật |
+| deleted_at | timestamp | nullable | Ngày xóa (Soft delete) |
 
 ### Quan hệ
 
@@ -154,6 +156,7 @@ Lưu thông tin sân thể thao.
 | status | enum | default active | active, maintenance, inactive |
 | created_at | timestamp | nullable | Ngày tạo |
 | updated_at | timestamp | nullable | Ngày cập nhật |
+| deleted_at | timestamp | nullable | Ngày xóa (Soft delete) |
 
 ### Status
 
@@ -169,6 +172,7 @@ inactive    → ngừng hoạt động
 fields n-1 users(owner)
 fields n-1 sports
 fields 1-n bookings
+fields 1-n time_slots
 ```
 
 ---
@@ -177,13 +181,14 @@ fields 1-n bookings
 
 ### Mục đích
 
-Lưu khung giờ đặt sân.
+Lưu khung giờ đặt sân được tùy chỉnh cho từng sân cụ thể (mỗi sân có thể có khung giờ khác nhau: 60 phút, 90 phút...).
 
 ### Columns
 
 | Column | Type | Constraint | Mô tả |
 |---|---|---|---|
 | id | bigint | PK | ID khung giờ |
+| field_id | bigint | FK fields.id | Sân sở hữu khung giờ |
 | start_time | time | required | Giờ bắt đầu |
 | end_time | time | required | Giờ kết thúc |
 | is_active | boolean | default true | Trạng thái hoạt động |
@@ -193,24 +198,27 @@ Lưu khung giờ đặt sân.
 ### Unique
 
 ```txt
-start_time + end_time unique
+field_id + start_time + end_time unique
 ```
 
-### Dữ liệu mẫu
+### Dữ liệu mẫu (Cho Sân A - Bóng đá 60p)
 
 ```txt
 06:00 - 07:00
 07:00 - 08:00
-08:00 - 09:00
-17:00 - 18:00
-18:00 - 19:00
-19:00 - 20:00
-20:00 - 21:00
+```
+
+### Dữ liệu mẫu (Cho Sân B - Tennis 90p)
+
+```txt
+06:00 - 07:30
+07:30 - 09:00
 ```
 
 ### Quan hệ
 
 ```txt
+time_slots n-1 fields
 time_slots 1-n bookings
 ```
 
@@ -345,6 +353,7 @@ users(customer)
 
 fields
   1 ─── n bookings
+  1 ─── n time_slots
 
 time_slots
   1 ─── n bookings
@@ -369,6 +378,7 @@ sports(id)
  └── fields.sport_id
 
 fields(id)
+ ├── time_slots.field_id
  └── bookings.field_id
 
 time_slots(id)

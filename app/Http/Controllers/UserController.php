@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\CreateUserRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -18,7 +19,9 @@ class UserController extends Controller
 
     public function create(): View
     {
-        return view('users.create');
+        $roles = Role::orderBy('name')->get();
+
+        return view('users.create', compact('roles'));
     }
 
     public function store(CreateUserRequest $request): RedirectResponse
@@ -37,7 +40,9 @@ class UserController extends Controller
 
     public function edit(User $user): View
     {
-        return view('users.edit', compact('user'));
+        $roles = Role::orderBy('name')->get();
+
+        return view('users.edit', compact('user', 'roles'));
     }
 
     public function update(CreateUserRequest $request, User $user): RedirectResponse
