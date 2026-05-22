@@ -27,11 +27,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', UserController::class);
 });
 
+use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
+
 // Owner Routes
 Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('owner.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
+    Route::patch('/bookings/{id}/confirm', [OwnerDashboardController::class, 'confirm'])->name('bookings.confirm');
+    Route::patch('/bookings/{id}/cancel', [OwnerDashboardController::class, 'cancel'])->name('bookings.cancel');
 });
 
 // Customer Routes
