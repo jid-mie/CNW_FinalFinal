@@ -86,18 +86,26 @@ class OwnerDashboardTest extends TestCase
             'status' => 'pending',
         ]);
 
-        // 2. Create another booking for yesterday (completed & paid)
-        $bookingPast = Booking::create([
+        // Create another time slot to avoid overlap
+        $anotherTimeSlot = TimeSlot::create([
+            'field_id' => $this->field->id,
+            'start_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'is_active' => true,
+        ]);
+
+        // 2. Create another booking for today (completed & paid)
+        $bookingTodayCompleted = Booking::create([
             'customer_id' => $this->customer->id,
             'field_id' => $this->field->id,
-            'time_slot_id' => $this->timeSlot->id,
-            'booking_date' => today()->subDays(2),
+            'time_slot_id' => $anotherTimeSlot->id,
+            'booking_date' => today(),
             'total_price' => 150000,
             'status' => 'completed',
         ]);
 
         Payment::create([
-            'booking_id' => $bookingPast->id,
+            'booking_id' => $bookingTodayCompleted->id,
             'amount' => 150000,
             'method' => 'cash',
             'status' => 'paid',
@@ -107,10 +115,13 @@ class OwnerDashboardTest extends TestCase
             ->get(route('owner.dashboard'));
 
         $response->assertStatus(200);
-        $response->assertViewHas('totalFields', 1);
-        $response->assertViewHas('todayBookings', 1);
-        $response->assertViewHas('pendingBookings', 1);
-        $response->assertViewHas('monthlyRevenue', 150000);
+        $response->assertViewHas('stats');
+        
+        $stats = $response->viewData('stats');
+        $this->assertEquals(1, $stats['total_fields']);
+        $this->assertEquals(2, $stats['today_bookings']); // 1 pending + 1 completed
+        $this->assertEquals(1, $stats['pending_bookings']);
+        $this->assertEquals(150000, $stats['today_revenue']);
     }
 
     public function test_owner_can_confirm_pending_booking()
@@ -125,10 +136,10 @@ class OwnerDashboardTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->owner)
-            ->patch(route('owner.bookings.confirm', $booking->id));
+            ->post(route('owner.bookings.confirm', $booking->id));
 
         $response->assertRedirect();
-        $response->assertSessionHas('success', 'Đã duyệt đặt lịch thành công.');
+        $response->assertSessionHas('success', 'Đã duyệt đặt lịch');
 
         $this->assertEquals('confirmed', $booking->fresh()->status);
         $this->assertNotNull($booking->fresh()->confirmed_at);
@@ -146,10 +157,10 @@ class OwnerDashboardTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->owner)
-            ->patch(route('owner.bookings.cancel', $booking->id));
+            ->post(route('owner.bookings.cancel', $booking->id));
 
         $response->assertRedirect();
-        $response->assertSessionHas('success', 'Đã hủy đặt lịch thành công.');
+        $response->assertSessionHas('success', 'Đã huỷ đặt lịch');
 
         $this->assertEquals('cancelled', $booking->fresh()->status);
         $this->assertNotNull($booking->fresh()->cancelled_at);

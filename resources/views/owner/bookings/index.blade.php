@@ -78,7 +78,11 @@
                                 @elseif($b->status == 'cancelled') bg-red-100 text-red-700
                                 @else bg-yellow-100 text-yellow-800
                                 @endif">
-                                {{ $b->status }}
+                                @if($b->status == 'confirmed') Đã duyệt
+                                @elseif($b->status == 'completed') Hoàn tất
+                                @elseif($b->status == 'cancelled') Đã huỷ
+                                @else Chờ duyệt
+                                @endif
                             </span>
                         </td>
                         <td class="px-4 py-3 text-right">

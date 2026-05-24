@@ -51,8 +51,13 @@ class BookingController extends Controller
     {
         $year = $request->integer('year', now()->year);
         $month = $request->integer('month', now()->month);
-        $dateFrom = sprintf('%04d-%02d-01', $year, $month);
-        $dateTo = date('Y-m-t', strtotime($dateFrom));
+
+        // Normalize year and month using Carbon to handle underflows (month < 1) and overflows (month > 12)
+        $date = Carbon::createFromDate($year, $month, 1);
+        $year = $date->year;
+        $month = $date->month;
+        $dateFrom = $date->copy()->startOfMonth()->toDateString();
+        $dateTo = $date->copy()->endOfMonth()->toDateString();
 
         $bookings = Booking::whereHas('field', fn($q) => $q->where('owner_id', auth()->id()))
             ->whereBetween('booking_date', [$dateFrom, $dateTo])
@@ -68,8 +73,26 @@ class BookingController extends Controller
     {
         if ($booking->field->owner_id !== auth()->id()) abort(403);
         if ($booking->status !== 'pending') return back()->with('error', 'Booking không ở trạng thái chờ duyệt');
+        
         $booking->update(['status' => 'confirmed', 'confirmed_at' => now()]);
-        return back()->with('success', 'Đã duyệt đặt lịch');
+
+        // Auto-cancel other overlapping pending bookings on the same field, date and time slot
+        $cancelledCount = Booking::where('field_id', $booking->field_id)
+            ->where('booking_date', $booking->booking_date)
+            ->where('time_slot_id', $booking->time_slot_id)
+            ->where('id', '!=', $booking->id)
+            ->where('status', 'pending')
+            ->update([
+                'status' => 'cancelled',
+                'cancelled_at' => now(),
+                'note' => 'Hệ thống tự động hủy do khung giờ đã được duyệt cho khách hàng khác.'
+            ]);
+
+        $message = $cancelledCount > 0 
+            ? 'Đã duyệt đặt lịch và tự động hủy các lịch trùng.' 
+            : 'Đã duyệt đặt lịch';
+
+        return back()->with('success', $message);
     }
 
     public function cancel(Request $request, Booking $booking)

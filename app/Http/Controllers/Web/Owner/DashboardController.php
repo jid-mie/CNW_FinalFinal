@@ -19,16 +19,32 @@ class DashboardController extends Controller
         $userId = auth()->id();
         $fieldIds = Field::where('owner_id', $userId)->pluck('id');
 
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
         $stats = [
             'total_fields' => $fieldIds->count(),
             'active_fields' => Field::where('owner_id', $userId)->where('status', 'active')->count(),
-            'today_bookings' => Booking::whereIn('field_id', $fieldIds)
+            'today_bookings' => Booking::whereIn('bookings.field_id', $fieldIds)
                 ->whereDate('booking_date', today())->count(),
-            'pending_bookings' => Booking::whereIn('field_id', $fieldIds)
+            'pending_bookings' => Booking::whereIn('bookings.field_id', $fieldIds)
                 ->where('status', 'pending')->count(),
-            'today_revenue' => (float) Booking::whereIn('field_id', $fieldIds)
+            'today_revenue' => (float) Booking::whereIn('bookings.field_id', $fieldIds)
                 ->whereDate('booking_date', today())
-                ->whereIn('status', ['confirmed', 'completed'])->sum('total_price'),
+                ->where(function ($query) {
+                    $query->whereHas('payment', function ($q) {
+                        $q->where('status', 'paid');
+                    })->orWhere('status', 'completed');
+                })
+                ->sum('total_price'),
+            'monthly_revenue' => (float) Booking::whereIn('bookings.field_id', $fieldIds)
+                ->whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+                ->where(function ($query) {
+                    $query->whereHas('payment', function ($q) {
+                        $q->where('status', 'paid');
+                    })->orWhere('status', 'completed');
+                })
+                ->sum('total_price'),
         ];
 
         $pendingBookings = Booking::whereIn('field_id', $fieldIds)
@@ -38,6 +54,15 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('owner.dashboard', compact('stats', 'pendingBookings'));
+        $recentBookings = Booking::whereIn('bookings.field_id', $fieldIds)
+            ->with(['customer', 'field', 'timeSlot'])
+            ->join('time_slots', 'bookings.time_slot_id', '=', 'time_slots.id')
+            ->orderBy('bookings.booking_date', 'desc')
+            ->orderBy('time_slots.start_time', 'desc')
+            ->select('bookings.*')
+            ->take(5)
+            ->get();
+
+        return view('owner.dashboard', compact('stats', 'pendingBookings', 'recentBookings'));
     }
 }

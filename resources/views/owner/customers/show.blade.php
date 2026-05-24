@@ -50,9 +50,30 @@
                                 @elseif($b->status == 'completed') bg-[#4ade80] text-[#0f172a]
                                 @elseif($b->status == 'cancelled') bg-red-100 text-red-700
                                 @else bg-yellow-100 text-yellow-800
-                                @endif">{{ $b->status }}</span>
+                                @endif">
+                                @if($b->status == 'confirmed') Đã duyệt
+                                @elseif($b->status == 'completed') Hoàn tất
+                                @elseif($b->status == 'cancelled') Đã huỷ
+                                @else Chờ duyệt
+                                @endif
+                            </span>
                         </td>
-                        <td class="px-4 py-3 text-center text-xs">{{ $b->payment?->status ?? '-' }}</td>
+                        <td class="px-4 py-3 text-center text-xs">
+                            @if($b->payment)
+                                <span class="px-2 py-0.5 rounded-lg text-xs font-bold uppercase
+                                    @if($b->payment->status == 'paid') bg-green-100 text-green-800
+                                    @elseif($b->payment->status == 'unpaid') bg-yellow-100 text-yellow-800
+                                    @else bg-gray-100 text-gray-800
+                                    @endif">
+                                    @if($b->payment->status == 'paid') Đã thanh toán
+                                    @elseif($b->payment->status == 'unpaid') Chưa thanh toán
+                                    @else {{ $b->payment->status }}
+                                    @endif
+                                </span>
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>

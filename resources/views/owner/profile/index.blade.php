@@ -14,9 +14,13 @@
         <div class="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm mb-6">
             <h3 class="font-bold text-sm text-[#0f172a] uppercase tracking-wide mb-4">Ảnh đại diện</h3>
             <div class="flex items-center gap-4">
-                <span class="w-16 h-16 rounded-full bg-[#0f172a] text-[#4ade80] text-xl font-bold flex items-center justify-center">
-                    {{ strtoupper(substr($user->name, 0, 2)) }}
-                </span>
+                @if($user->avatar)
+                    <img src="{{ asset('uploads/avatars/' . $user->avatar) }}" alt="{{ $user->name }}" class="w-16 h-16 rounded-full object-cover border border-[#e2e8f0]">
+                @else
+                    <span class="w-16 h-16 rounded-full bg-[#0f172a] text-[#4ade80] text-xl font-bold flex items-center justify-center">
+                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                    </span>
+                @endif
                 <form method="POST" action="{{ route('owner.profile.avatar') }}" enctype="multipart/form-data">
                     @csrf
                     <input type="file" name="avatar" accept="image/*" class="text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#0f172a] file:text-[#4ade80] hover:file:bg-slate-800">

@@ -20,22 +20,27 @@ class TimeSlotController extends Controller
     {
         if ($field->owner_id !== auth()->id()) abort(403);
 
-        $data = $request->validate([
+        $request->validate([
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'price' => 'nullable|numeric|min:0',
             'status' => 'nullable|in:active,inactive',
         ]);
 
+        $start_time = $request->start_time;
+        $end_time = $request->end_time;
+
         $overlap = $field->timeSlots()
-            ->where(function ($q) use ($data) {
-                $q->whereBetween('start_time', [$data['start_time'], $data['end_time']])
-                  ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']]);
-            })->exists();
+            ->where('start_time', '<', $end_time)
+            ->where('end_time', '>', $start_time)
+            ->exists();
 
         if ($overlap) return back()->with('error', 'Khung giờ bị trùng lịch');
 
-        $field->timeSlots()->create($data);
+        $field->timeSlots()->create([
+            'start_time' => $start_time,
+            'end_time' => $end_time,
+            'is_active' => ($request->status ?? 'active') === 'active',
+        ]);
 
         return back()->with('success', 'Thêm khung giờ thành công');
     }
@@ -44,14 +49,28 @@ class TimeSlotController extends Controller
     {
         if ($timeSlot->field->owner_id !== auth()->id()) abort(403);
 
-        $data = $request->validate([
+        $request->validate([
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'price' => 'nullable|numeric|min:0',
             'status' => 'nullable|in:active,inactive',
         ]);
 
-        $timeSlot->update($data);
+        $start_time = $request->start_time;
+        $end_time = $request->end_time;
+
+        $overlap = $timeSlot->field->timeSlots()
+            ->where('id', '!=', $timeSlot->id)
+            ->where('start_time', '<', $end_time)
+            ->where('end_time', '>', $start_time)
+            ->exists();
+
+        if ($overlap) return back()->with('error', 'Khung giờ bị trùng lịch');
+
+        $timeSlot->update([
+            'start_time' => $start_time,
+            'end_time' => $end_time,
+            'is_active' => ($request->status ?? 'active') === 'active',
+        ]);
 
         return back()->with('success', 'Cập nhật khung giờ thành công');
     }
@@ -76,8 +95,7 @@ class TimeSlotController extends Controller
                 'field_id' => $field->id,
                 'start_time' => sprintf('%02d:00', $h),
                 'end_time' => sprintf('%02d:00', $h + 1),
-                'price' => $field->price_per_hour,
-                'status' => 'active',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

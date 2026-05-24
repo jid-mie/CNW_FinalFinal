@@ -52,8 +52,8 @@
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Doanh thu hôm nay</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($stats['today_revenue'], 0, ',', '.') }}đ</h3>
+                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Doanh thu tháng này</p>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }}đ</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1M10 21h4a2 2 0 002-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -76,42 +76,86 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Pending Bookings -->
-            <div class="lg:col-span-2 bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Yêu Cầu Chờ Duyệt</h3>
-                    <a href="{{ route('owner.bookings.pending') }}" class="text-xs font-semibold text-[#0f172a] underline">Xem tất cả</a>
-                </div>
-                @if($pendingBookings->count() > 0)
-                    <div class="divide-y divide-[#e2e8f0]">
-                        @foreach($pendingBookings as $booking)
-                        <div class="py-3 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
-                                    {{ strtoupper(substr($booking->customer?->name ?? 'KH', 0, 2)) }}
-                                </span>
-                                <div>
-                                    <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
-                                    <p class="text-xs text-[#45464d] mt-0.5">{{ $booking->field?->name }} | {{ $booking->timeSlot?->start_time?->format('H:i') }} - {{ $booking->timeSlot?->end_time?->format('H:i') }}</p>
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Pending Bookings -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Yêu Cầu Chờ Duyệt</h3>
+                        <a href="{{ route('owner.bookings.pending') }}" class="text-xs font-semibold text-[#0f172a] underline">Xem tất cả</a>
+                    </div>
+                    @if($pendingBookings->count() > 0)
+                        <div class="divide-y divide-[#e2e8f0]">
+                            @foreach($pendingBookings as $booking)
+                            <div class="py-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
+                                        {{ strtoupper(substr($booking->customer?->name ?? 'KH', 0, 2)) }}
+                                    </span>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
+                                        <p class="text-xs text-[#45464d] mt-0.5">{{ $booking->field?->name }} | {{ $booking->timeSlot?->start_time?->format('H:i') }} - {{ $booking->timeSlot?->end_time?->format('H:i') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-[#45464d]">{{ $booking->booking_date->format('d/m') }}</span>
+                                    <form action="{{ route('owner.bookings.confirm', $booking) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></button>
+                                    </form>
+                                    <form action="{{ route('owner.bookings.cancel', $booking) }}" method="POST" class="inline" onsubmit="return confirm('Từ chối đặt lịch này?')">
+                                        @csrf
+                                        <button class="p-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                    </form>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-[#45464d]">{{ $booking->booking_date->format('d/m') }}</span>
-                                <form action="{{ route('owner.bookings.confirm', $booking) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></button>
-                                </form>
-                                <form action="{{ route('owner.bookings.cancel', $booking) }}" method="POST" class="inline" onsubmit="return confirm('Từ chối đặt lịch này?')">
-                                    @csrf
-                                    <button class="p-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                                </form>
-                            </div>
+                            @endforeach
                         </div>
-                        @endforeach
+                    @else
+                        <p class="text-sm text-[#45464d] py-4 text-center">Không có yêu cầu chờ duyệt</p>
+                    @endif
+                </div>
+
+                <!-- Recent Bookings -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Đặt lịch gần đây</h3>
+                        <a href="{{ route('owner.bookings.index') }}" class="text-xs font-semibold text-[#0f172a] underline">Xem tất cả</a>
                     </div>
-                @else
-                    <p class="text-sm text-[#45464d] py-4 text-center">Không có yêu cầu chờ duyệt</p>
-                @endif
+                    @if($recentBookings->count() > 0)
+                        <div class="divide-y divide-[#e2e8f0]">
+                            @foreach($recentBookings as $booking)
+                            <div class="py-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
+                                        {{ strtoupper(substr($booking->customer?->name ?? 'KH', 0, 2)) }}
+                                    </span>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
+                                        <p class="text-xs text-[#45464d] mt-0.5">{{ $booking->field?->name }} | {{ $booking->timeSlot?->start_time?->format('H:i') }} - {{ $booking->timeSlot?->end_time?->format('H:i') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right">
+                                        <span class="text-xs font-bold text-[#0f172a] block">{{ number_format($booking->total_price, 0, ',', '.') }}đ</span>
+                                        <span class="text-[10px] text-[#45464d]">{{ $booking->booking_date->format('d/m') }}</span>
+                                    </div>
+                                    @if($booking->status === 'pending')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-yellow-100 text-yellow-800 uppercase tracking-wider">Chờ duyệt</span>
+                                    @elseif($booking->status === 'confirmed')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 uppercase tracking-wider">Đã duyệt</span>
+                                    @elseif($booking->status === 'completed')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-green-100 text-green-800 uppercase tracking-wider">Đã xong</span>
+                                    @elseif($booking->status === 'cancelled')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-red-100 text-red-800 uppercase tracking-wider">Đã hủy</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-[#45464d] py-4 text-center">Không có đặt lịch gần đây</p>
+                    @endif
+                </div>
             </div>
 
             <!-- Quick Actions -->

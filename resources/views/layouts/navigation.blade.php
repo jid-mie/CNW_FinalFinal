@@ -39,7 +39,11 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-[#e2e8f0] text-sm leading-4 font-medium rounded-lg text-[#0f172a] bg-white hover:bg-slate-50 transition-colors">
-                            <span class="w-7 h-7 rounded-full bg-[#0f172a] text-[#4ade80] flex items-center justify-center text-xs font-bold mr-2">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            @if(Auth::user()->avatar)
+                                <img src="{{ asset('uploads/avatars/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="w-7 h-7 rounded-full object-cover mr-2 border border-[#e2e8f0]">
+                            @else
+                                <span class="w-7 h-7 rounded-full bg-[#0f172a] text-[#4ade80] flex items-center justify-center text-xs font-bold mr-2">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            @endif
                             <div>{{ Auth::user()->name }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
