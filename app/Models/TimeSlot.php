@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,16 +11,16 @@ class TimeSlot extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'field_id',
-        'start_time',
-        'end_time',
-        'is_active',
-    ];
+    protected $fillable = ['field_id', 'start_time', 'end_time', 'is_active'];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'start_time' => 'datetime:H:i',
+            'end_time' => 'datetime:H:i',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function field(): BelongsTo
     {
@@ -29,29 +30,5 @@ class TimeSlot extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
-    }
-
-    /**
-     * Get start time formatted as H:i
-     */
-    public function getFormattedStartTimeAttribute(): string
-    {
-        return date('H:i', strtotime($this->start_time));
-    }
-
-    /**
-     * Get end time formatted as H:i
-     */
-    public function getFormattedEndTimeAttribute(): string
-    {
-        return date('H:i', strtotime($this->end_time));
-    }
-
-    /**
-     * Get formatted slot string e.g. "08:00 - 09:30"
-     */
-    public function getFormattedSlotAttribute(): string
-    {
-        return $this->formatted_start_time . ' - ' . $this->formatted_end_time;
     }
 }

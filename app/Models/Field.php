@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,22 +13,19 @@ class Field extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'owner_id',
-        'sport_id',
-        'name',
-        'code',
-        'description',
-        'address',
-        'price_per_hour',
-        'open_time',
-        'close_time',
-        'image',
-        'status',
+        'owner_id', 'sport_id', 'name', 'code', 'description',
+        'address', 'price_per_hour', 'open_time', 'close_time',
+        'image', 'image_url', 'status',
     ];
 
-    protected $casts = [
-        'price_per_hour' => 'decimal:2',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'price_per_hour' => 'decimal:2',
+            'open_time' => 'datetime:H:i',
+            'close_time' => 'datetime:H:i',
+        ];
+    }
 
     public function owner(): BelongsTo
     {
