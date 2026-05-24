@@ -63,6 +63,13 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('owner.dashboard', compact('stats', 'pendingBookings', 'recentBookings'));
+        $fields = Field::where('owner_id', $userId)
+            ->with('sport')
+            ->withCount(['timeSlots', 'bookings'])
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('owner.dashboard', compact('stats', 'pendingBookings', 'recentBookings', 'fields'));
     }
 }
