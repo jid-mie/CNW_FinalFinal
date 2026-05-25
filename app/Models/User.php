@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['role_id', 'name', 'email', 'phone', 'address', 'password'])]
 #[Hidden(['password', 'remember_token'])]
@@ -24,6 +25,16 @@ class User extends Authenticatable // implements MustVerifyEmailContract
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function fields(): HasMany
+    {
+        return $this->hasMany(Field::class, 'owner_id');
+    }
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'customer_id');
     }
 
     public function hasRole(string|array $roles): bool

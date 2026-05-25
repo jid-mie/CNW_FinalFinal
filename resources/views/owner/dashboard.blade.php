@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-bold font-heading text-2xl text-[#0f172a] uppercase tracking-wide">
-                {{ __('Owner Dashboard') }}
+                Owner Dashboard
             </h2>
             <span class="bg-[#4ade80] text-[#0f172a] text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-sm">
                 Quản Lý Chủ Sân
@@ -11,159 +11,222 @@
     </x-slot>
 
     <div class="py-6">
-        <!-- Yard Owner Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Sân đang hoạt động</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">6 / 8</h3>
+                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Tổng sân</p>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ $stats['total_fields'] }}</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center text-xs text-[#006d36] font-bold">
-                    <span>Đạt hiệu suất 75% hôm nay</span>
+                <div class="mt-2 text-xs text-[#006d36] font-bold">
+                    {{ $stats['active_fields'] }} sân đang hoạt động
                 </div>
             </div>
-
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Đặt lịch hôm nay</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">24</h3>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ $stats['today_bookings'] }}</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center text-xs text-[#006d36] font-bold">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                    <span>+4 lượt đặt mới mới</span>
-                </div>
             </div>
-
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Doanh thu hôm nay</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">4.8M</h3>
+                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Chờ duyệt</p>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ $stats['pending_bookings'] }}</h3>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Doanh thu tháng này</p>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($stats['monthly_revenue'], 0, ',', '.') }}đ</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1M10 21h4a2 2 0 002-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
-                <div class="mt-4 flex items-center text-xs text-[#006d36] font-bold">
-                    <span>90% đã thanh toán online</span>
-                </div>
             </div>
-
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Đánh giá trung bình</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">4.9 / 5</h3>
+                <a href="{{ route('owner.bookings.calendar') }}" class="block">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Xem lịch</p>
+                            <h3 class="text-xl font-bold font-heading text-[#0f172a] mt-1">Calendar</h3>
+                        </div>
+                        <div class="p-3 bg-[#0f172a] text-[#4ade80] rounded-lg">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
                     </div>
-                    <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.969 0 1.371 1.24.588 1.81l-3.97 2.883a1 1 0 00-.364 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.971-2.883a1 1 0 00-1.178 0l-3.97 2.883c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.364-1.118L2.49 10.11c-.783-.57-.38-1.81.588-1.81h4.906a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-                    </div>
-                </div>
-                <div class="mt-4 flex items-center text-xs text-[#45464d] font-bold">
-                    <span>Dựa trên 142 lượt review</span>
-                </div>
+                </a>
             </div>
         </div>
 
-        <!-- Booking & Court Management Workspace -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-2 bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Yêu Cầu Đặt Lịch Chờ Duyệt</h3>
-                        <p class="text-xs text-[#45464d] mt-1">Xem và duyệt các lượt đặt sân bóng đá, tennis đang chờ xử lý.</p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Pending Bookings -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Yêu Cầu Chờ Duyệt</h3>
+                        <a href="{{ route('owner.bookings.pending') }}" class="text-xs font-semibold text-[#0f172a] underline">Xem tất cả</a>
                     </div>
+                    @if($pendingBookings->count() > 0)
+                        <div class="divide-y divide-[#e2e8f0]">
+                            @foreach($pendingBookings as $booking)
+                            <div class="py-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
+                                        {{ strtoupper(substr($booking->customer?->name ?? 'KH', 0, 2)) }}
+                                    </span>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
+                                        <p class="text-xs text-[#45464d] mt-0.5">{{ $booking->field?->name }} | {{ $booking->timeSlot?->start_time?->format('H:i') }} - {{ $booking->timeSlot?->end_time?->format('H:i') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-[#45464d]">{{ $booking->booking_date->format('d/m') }}</span>
+                                    <form action="{{ route('owner.bookings.confirm', $booking) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></button>
+                                    </form>
+                                    <form action="{{ route('owner.bookings.cancel', $booking) }}" method="POST" class="inline" onsubmit="return confirm('Từ chối đặt lịch này?')">
+                                        @csrf
+                                        <button class="p-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                                    </form>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-[#45464d] py-4 text-center">Không có yêu cầu chờ duyệt</p>
+                    @endif
                 </div>
 
-                <div class="divide-y divide-[#e2e8f0]">
-                    <!-- Booking Row 1 -->
-                    <div class="py-4 flex items-center justify-between first:pt-0 last:pb-0">
-                        <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
-                                KH
-                            </span>
-                            <div>
-                                <h4 class="font-bold text-sm text-[#0f172a]">Trần Minh Khang</h4>
-                                <p class="text-xs text-[#45464d] mt-0.5">Sân bóng đá 7 người | Sân Số 2</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="text-right">
-                                <span class="block text-sm font-semibold text-[#0f172a]">17:30 - 19:00</span>
-                                <span class="block text-xs text-[#45464d]">Hôm nay, 19/05</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg transition-transform active:scale-90 shadow-sm" title="Duyệt">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                </button>
-                                <button class="p-1.5 bg-red-100 text-red-700 rounded-lg transition-transform active:scale-90" title="Từ chối">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
-                        </div>
+                <!-- Recent Bookings -->
+                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Đặt lịch gần đây</h3>
+                        <a href="{{ route('owner.bookings.index') }}" class="text-xs font-semibold text-[#0f172a] underline">Xem tất cả</a>
                     </div>
+                    @if($recentBookings->count() > 0)
+                        <div class="divide-y divide-[#e2e8f0]">
+                            @foreach($recentBookings as $booking)
+                            <div class="py-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
+                                        {{ strtoupper(substr($booking->customer?->name ?? 'KH', 0, 2)) }}
+                                    </span>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
+                                        <p class="text-xs text-[#45464d] mt-0.5">{{ $booking->field?->name }} | {{ $booking->timeSlot?->start_time?->format('H:i') }} - {{ $booking->timeSlot?->end_time?->format('H:i') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right">
+                                        <span class="text-xs font-bold text-[#0f172a] block">{{ number_format($booking->total_price, 0, ',', '.') }}đ</span>
+                                        <span class="text-[10px] text-[#45464d]">{{ $booking->booking_date->format('d/m') }}</span>
+                                    </div>
+                                    @if($booking->status === 'pending')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-yellow-100 text-yellow-800 uppercase tracking-wider">Chờ duyệt</span>
+                                    @elseif($booking->status === 'confirmed')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800 uppercase tracking-wider">Đã duyệt</span>
+                                    @elseif($booking->status === 'completed')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-green-100 text-green-800 uppercase tracking-wider">Đã xong</span>
+                                    @elseif($booking->status === 'cancelled')
+                                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-red-100 text-red-800 uppercase tracking-wider">Đã hủy</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-sm text-[#45464d] py-4 text-center">Không có đặt lịch gần đây</p>
+                    @endif
+                </div>
+            </div>
 
-                    <!-- Booking Row 2 -->
-                    <div class="py-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-full bg-[#f8fafc] text-xs font-bold text-[#0f172a] flex items-center justify-center border border-[#e2e8f0]">
-                                NV
-                            </span>
-                            <div>
-                                <h4 class="font-bold text-sm text-[#0f172a]">Nguyễn Văn Nam</h4>
-                                <p class="text-xs text-[#45464d] mt-0.5">Sân Tennis VIP | Sân Đất Nện</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="text-right">
-                                <span class="block text-sm font-semibold text-[#0f172a]">20:00 - 22:00</span>
-                                <span class="block text-xs text-[#45464d]">Hôm nay, 19/05</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg transition-transform active:scale-90 shadow-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                </button>
-                                <button class="p-1.5 bg-red-100 text-red-700 rounded-lg transition-transform active:scale-90">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
-                            </div>
-                        </div>
+            <!-- Quick Actions -->
+            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6">
+                <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide mb-4">Thao Tác Nhanh</h3>
+                <a href="{{ route('owner.fields.create') }}" class="w-full mb-3 flex items-center justify-between p-3.5 bg-[#0f172a] text-[#4ade80] rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm hover:bg-slate-800 transition-colors">
+                    <span>Thêm sân mới</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                </a>
+                <a href="{{ route('owner.bookings.pending') }}" class="w-full mb-3 flex items-center justify-between p-3.5 border border-[#0f172a] text-[#0f172a] rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-[#f8fafc] transition-colors">
+                    <span>Xem lịch đặt</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </a>
+                <a href="{{ route('owner.revenue.index') }}" class="w-full mb-3 flex items-center justify-between p-3.5 border border-[#0f172a] text-[#0f172a] rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-[#f8fafc] transition-colors">
+                    <span>Báo cáo doanh thu</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </a>
+                <div class="pt-4 mt-2 border-t border-[#e2e8f0]">
+                    <div class="flex items-center gap-3 text-xs bg-slate-50 border border-[#e2e8f0] p-3 rounded-lg text-[#45464d]">
+                        <svg class="w-5 h-5 text-[#0f172a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Cơ sở của bạn đã được kiểm duyệt hợp lệ.</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Side Quick Control -->
-            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide mb-4">Thao Tác Nhanh</h3>
-                    
-                    <button class="w-full mb-3 flex items-center justify-between p-3.5 bg-[#0f172a] text-[#4ade80] rounded-xl font-bold uppercase tracking-wider text-xs shadow-sm hover:bg-slate-800 transition-colors">
-                        <span>Đăng ký thêm sân đấu mới</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                    </button>
-
-                    <button class="w-full mb-3 flex items-center justify-between p-3.5 border border-[#0f172a] text-[#0f172a] rounded-xl font-bold uppercase tracking-wider text-xs hover:bg-[#f8fafc] transition-colors">
-                        <span>Cài đặt giờ hoạt động & Giá</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                    </button>
+            <!-- Sân của tôi (Quick list) -->
+            <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 mt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-md font-bold font-heading text-[#0f172a] uppercase tracking-wide">Sân của tôi</h3>
+                    <a href="{{ route('owner.fields.index') }}" class="text-xs font-semibold text-[#0f172a] underline">Xem tất cả</a>
                 </div>
-
-                <div class="pt-6 border-t border-[#e2e8f0]">
-                    <div class="flex items-center gap-3 text-xs bg-slate-50 border border-[#e2e8f0] p-3 rounded-lg text-[#45464d]">
-                        <svg class="w-5 h-5 text-[#0f172a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Cơ sở của bạn đã được kiểm duyệt hợp lệ từ hệ thống PlayManagement.</span>
+                @if($fields->count() > 0)
+                    <div class="space-y-4">
+                        @foreach($fields as $field)
+                        <div class="group relative rounded-xl border border-[#e2e8f0] overflow-hidden hover:shadow-md transition-all duration-200">
+                            <!-- Image 16:9 -->
+                            <div class="aspect-video w-full bg-slate-100 relative overflow-hidden">
+                                @if($field->image_url)
+                                    <img src="{{ $field->image_url }}" alt="{{ $field->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-400">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </div>
+                                @endif
+                                <span class="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $field->status == 'active' ? 'bg-[#4ade80] text-[#0f172a]' : 'bg-gray-300 text-gray-700' }}">
+                                    {{ $field->status == 'active' ? 'Đang mở' : 'Tạm ngưng' }}
+                                </span>
+                            </div>
+                            <!-- Card Content -->
+                            <div class="p-3 bg-white">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <h4 class="font-bold text-sm text-[#0f172a] truncate">{{ $field->name }}</h4>
+                                        <p class="text-[11px] text-[#45464d] mt-0.5">{{ $field->sport?->name }}</p>
+                                    </div>
+                                    <span class="font-bold text-xs text-[#0f172a] whitespace-nowrap bg-slate-50 px-2 py-0.5 rounded border border-[#e2e8f0]">{{ number_format($field->price_per_hour, 0, ',', '.') }}đ/h</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-[#e2e8f0] text-[11px] text-[#45464d]">
+                                    <span>{{ $field->time_slots_count }} khung giờ</span>
+                                    <a href="{{ route('owner.time-slots.index', $field) }}" class="font-bold text-[#0f172a] hover:underline flex items-center gap-0.5">
+                                        Cấu hình giờ
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
-                </div>
+                @else
+                    <p class="text-sm text-[#45464d] py-4 text-center">Chưa có sân đấu nào</p>
+                @endif
             </div>
         </div>
     </div>
