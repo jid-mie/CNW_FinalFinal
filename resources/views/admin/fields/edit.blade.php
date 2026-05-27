@@ -3,7 +3,7 @@
 @section('content')
 <div class="p-6 bg-[#f8fafc] min-h-screen flex flex-col items-center justify-start pt-12">
     
-    <div class="w-full max-w-xl bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden animate-in fade-in duration-200">
+    <div class="w-full max-w-xl bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
         
         <div class="bg-[#111625] px-6 py-5 text-white flex justify-between items-center">
             <div>
@@ -54,12 +54,7 @@
                 
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Chủ quản lý sân</label>
-                    <input type="text" 
-                           name="owner_name" 
-                           value="{{ old('owner_name', $field->owner->name ?? '') }}" 
-                           placeholder="Nhập họ và tên chủ sân..." 
-                           class="w-full p-3 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-slate-800 font-semibold text-slate-700 shadow-sm" 
-                           required>
+                    <input type="text" name="owner_name" value="{{ old('owner_name', $field->owner->name ?? '') }}" placeholder="Nhập họ và tên chủ sân..." class="w-full p-3 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-slate-800 font-semibold text-slate-700 shadow-sm" required>
                 </div>
             </div>
 
@@ -74,7 +69,6 @@
                     <select name="status" class="w-full p-3 border border-slate-200 rounded-xl text-xs focus:outline-none bg-white font-semibold text-slate-600 shadow-sm" required>
                         <option value="active" {{ $field->status == 'active' ? 'selected' : '' }}>Đang hoạt động</option>
                         <option value="maintenance" {{ $field->status == 'maintenance' ? 'selected' : '' }}>Đang bảo trì</option>
-                        <option value="inactive" {{ $field->status == 'inactive' ? 'selected' : '' }}>Tạm dừng</option>
                     </select>
                 </div>
             </div>

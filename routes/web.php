@@ -3,10 +3,9 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\SportController; 
 use App\Http\Controllers\Admin\FieldController;
-=======
+use App\Http\Controllers\Admin\PaymentController; 
 use App\Http\Controllers\Web\Owner\BookingController as OwnerBookingController;
 use App\Http\Controllers\Web\Owner\CustomerController as OwnerCustomerController;
 use App\Http\Controllers\Web\Owner\DashboardController as OwnerDashboardController;
@@ -14,7 +13,6 @@ use App\Http\Controllers\Web\Owner\FieldController as OwnerFieldController;
 use App\Http\Controllers\Web\Owner\ProfileController as OwnerProfileController;
 use App\Http\Controllers\Web\Owner\RevenueController as OwnerRevenueController;
 use App\Http\Controllers\Web\Owner\TimeSlotController as OwnerTimeSlotController;
->>>>>>> 077435113a1726d0be64af7de73348d2760be3f4
 use Illuminate\Support\Facades\Route;
 
 // 1. Điều hướng trang chủ mặc định khi vừa vào web
@@ -35,7 +33,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth'])->name('dashboard');
 
 
-// 3. 🛡️ PHÂN HỆ ADMIN DASHBOARD (Đã bảo mật và gom cụm mượt mà)
+// 3. 🛡️ PHÂN HỆ ADMIN DASHBOARD (Đã bảo mật và đồng bộ hóa triệt để)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     
     // Trang tổng quan đồ thị Dashboard Admin
@@ -44,21 +42,26 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Quản lý Users gốc của nhóm bạn
     Route::resource('users', UserController::class);
 
-    // ⚽ Phân hệ quản lý Môn thể thao (Sports) của bạn
+    // ⚽ Phân hệ quản lý Môn thể thao (Sports)
     Route::get('/sports', [SportController::class, 'index'])->name('sports.index');
+    Route::get('/sports/add', [SportController::class, 'add'])->name('sports.add');
     Route::get('/sports/{id}/edit', [SportController::class, 'edit'])->name('sports.edit');
     Route::post('/sports', [SportController::class, 'store'])->name('sports.store');
     Route::post('/sports/{id}/toggle-status', [SportController::class, 'toggleStatus'])->name('sports.toggle-status');
     Route::post('/sports/{id}/update', [SportController::class, 'update'])->name('sports.update');
     Route::post('/sports/{id}/delete', [SportController::class, 'destroy'])->name('sports.destroy');
 
-    // 🏢 Phân hệ quản lý Sân chi tiết (Fields) của bạn
+    // 🏢 Phân hệ quản lý Sân chi tiết (Fields)
     Route::get('/fields', [FieldController::class, 'index'])->name('fields.index');
     Route::get('/fields/{id}/edit', [FieldController::class, 'edit'])->name('fields.edit');
     Route::post('/fields', [FieldController::class, 'store'])->name('fields.store');
     Route::post('/fields/{id}/update', [FieldController::class, 'update'])->name('fields.update');
     Route::post('/fields/{id}/delete', [FieldController::class, 'destroy'])->name('fields.destroy');
     
+    // 💳 Phân hệ quản lý Thanh toán (Payments) - Đã tối ưu thứ tự ưu tiên tránh lỗi kẹt ID
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
+    Route::post('/payments/{id}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
 });
 
 

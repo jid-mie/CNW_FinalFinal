@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // ── 5. Fields (3 fields per owner) ──
+        // ── 5. Fields ──
         $fieldNames = [
             ['Sân chính', 'Sân phụ', 'Sân VIP'],
             ['Sân A', 'Sân B', 'Sân tập'],
@@ -96,32 +96,28 @@ class DatabaseSeeder extends Seeder
 
             foreach ($fieldNames[$oi] as $fi => $fname) {
                 $sport = $sportPool[$fi % count($sportPool)];
-                $prices = [100000, 150000, 200000, 250000, 300000, 400000];
-                $price = $prices[($fi + $oi * 2) % count($prices)];
+                // Nâng tầm giá sân lên hàng triệu để test hiển thị định dạng doanh thu xịn mịn
+                $prices = [600000, 800000, 1000000, 1200000, 1500000];
+                $price = $prices[($fi + $oi) % count($prices)];
                 $fields[] = Field::create([
                     'owner_id' => $owner->id,
                     'sport_id' => $sport->id,
+                    'code' => 'SBD-' . str_pad(count($fields) + 1, 3, '0', STR_PAD_LEFT),
                     'name' => $fname,
-                    'description' => "Sân {$fname} - " . $sport->name . ', đạt chuẩn chất lượng cao.',
+                    'description' => "Sân {$fname} - " . $sport->name . ', đạt chuẩn thi đấu.',
                     'address' => $addresses[$oi][$fi],
                     'price_per_hour' => $price,
                     'open_time' => '06:00',
                     'close_time' => '22:00',
-                    'status' => 'active',
+                    'status' => ($fi == 2) ? 'maintenance' : 'active', // Tạo sẵn một vài sân bảo trì
                 ]);
             }
         }
 
-        // ── 6. Time slots (8 slots 06:00→22:00, 2h each) ──
+        // ── 6. Time slots ──
         $slotRanges = [
-            ['06:00', '08:00'],
-            ['08:00', '10:00'],
-            ['10:00', '12:00'],
-            ['12:00', '14:00'],
-            ['14:00', '16:00'],
-            ['16:00', '18:00'],
-            ['18:00', '20:00'],
-            ['20:00', '22:00'],
+            ['06:00', '08:00'], ['08:00', '10:00'], ['10:00', '12:00'], ['12:00', '14:00'],
+            ['14:00', '16:00'], ['16:00', '18:00'], ['18:00', '20:00'], ['20:00', '22:00'],
         ];
         foreach ($fields as $field) {
             foreach ($slotRanges as [$start, $end]) {
@@ -155,54 +151,88 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // ── 8. Bookings + Payments ──
+        // ── 8. Bookings + Payments (Bản MA TRẬN 35 kịch bản - Bảo đảm chia đều 4 trang) ──
         $allSlots = TimeSlot::all()->groupBy('field_id');
-        $now = now();
-        $statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+        $customerCount = count($customerUsers);
+        $fieldCount = count($fields);
 
-        foreach ($fields as $field) {
+        $scenarios = [
+            // Ngày 20/05/2026
+            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-20', 'status' => 'pending',   'method' => 'cash',          'p_status' => 'pending'],
+            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            // Ngày 21/05/2026
+            ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-21', 'status' => 'cancelled', 'method' => 'momo',          'p_status' => 'refunded'],
+            ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            // Ngày 22/05/2026
+            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
+            ['date' => '2026-05-22', 'status' => 'pending',   'method' => 'momo',          'p_status' => 'pending'],
+            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            // Ngày 23/05/2026
+            ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-23', 'status' => 'pending',   'method' => 'vnpay',         'p_status' => 'pending'],
+            ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            // Ngày 24/05/2026
+            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-24', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
+            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
+            // Ngày 25/05/2026
+            ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-25', 'status' => 'pending',   'method' => 'momo',          'p_status' => 'pending'],
+            ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            // Ngày 26/05/2026
+            ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
+            ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-26', 'status' => 'pending',   'method' => 'vnpay',         'p_status' => 'pending'],
+            // Ngày 27/05/2026
+            ['date' => '2026-05-27', 'status' => 'pending',   'method' => 'cash',          'p_status' => 'pending'],
+            ['date' => '2026-05-27', 'status' => 'cancelled', 'method' => 'vnpay',         'p_status' => 'refunded'],
+            ['date' => '2026-05-27', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            // Ngày 28/05/2026 (Mốc hôm nay)
+            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-28', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
+            // Ngày 29/05/2026
+            ['date' => '2026-05-29', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
+            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
+            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            // Ngày 30/05/2026
+            ['date' => '2026-05-30', 'status' => 'cancelled', 'method' => 'momo',          'p_status' => 'refunded'],
+            ['date' => '2026-05-30', 'status' => 'pending',   'method' => 'vnpay',         'p_status' => 'pending'],
+            ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+        ];
+
+        foreach ($scenarios as $index => $scene) {
+            $field = $fields[$index % $fieldCount];
+            $customer = $customerUsers[$index % $customerCount];
             $slots = $allSlots->get($field->id, collect());
-            if ($slots->isEmpty()) continue;
+            $slot = $slots->isNotEmpty() ? $slots->random() : TimeSlot::first();
 
-            // 3 bookings per field: past (completed), today (confirmed/pending), future (pending)
-            $bookingConfigs = [
-                ['date' => $now->copy()->subDays(rand(1, 5)),  'status' => 'completed',   'payment' => true],
-                ['date' => $now->copy()->format('Y-m-d'),      'status' => 'confirmed',   'payment' => true],
-                ['date' => $now->copy()->addDays(rand(1, 7)),  'status' => 'pending',     'payment' => false],
-            ];
+            $booking = Booking::create([
+                'customer_id' => $customer->id,
+                'field_id' => $field->id,
+                'time_slot_id' => $slot->id,
+                'booking_date' => $scene['date'],
+                'total_price' => $field->price_per_hour,
+                'status' => $scene['status'],
+                'note' => 'Hóa đơn giả lập dòng tiền số ' . ($index + 1),
+                'confirmed_at' => $scene['status'] !== 'pending' ? now() : null,
+                'cancelled_at' => $scene['status'] === 'cancelled' ? now() : null,
+            ]);
 
-            foreach ($bookingConfigs as $cfg) {
-                $slot = $slots->random();
-                $customer = $customerUsers[array_rand($customerUsers)];
-
-                $booking = Booking::create([
-                    'customer_id' => $customer->id,
-                    'field_id' => $field->id,
-                    'time_slot_id' => $slot->id,
-                    'booking_date' => is_string($cfg['date']) ? $cfg['date'] : $cfg['date']->format('Y-m-d'),
-                    'total_price' => $field->price_per_hour,
-                    'status' => $cfg['status'],
-                    'note' => $cfg['status'] === 'cancelled' ? 'Không thể đi được, hẹn lần sau' : null,
-                    'confirmed_at' => $cfg['status'] === 'completed' || $cfg['status'] === 'confirmed' ? $now->copy()->subDay() : null,
-                    'cancelled_at' => $cfg['status'] === 'cancelled' ? $now->copy()->subHours(rand(1, 12)) : null,
-                ]);
-
-                if ($cfg['payment']) {
-                    Payment::create([
-                        'booking_id' => $booking->id,
-                        'amount' => $field->price_per_hour,
-                        'method' => ['cash', 'bank_transfer', 'momo', 'vnpay'][array_rand(['cash', 'bank_transfer', 'momo', 'vnpay'])],
-                        'status' => 'paid',
-                        'transaction_code' => strtoupper('TXN-' . $booking->id . rand(1000, 9999)),
-                        'paid_at' => $now->copy()->subHours(rand(1, 48)),
-                    ]);
-                }
-            }
+            Payment::create([
+                'booking_id' => $booking->id,
+                'amount' => $field->price_per_hour,
+                'method' => $scene['method'], 
+                'status' => $scene['p_status'], 
+                'transaction_code' => 'TXN-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT),
+                'paid_at' => $scene['p_status'] === 'paid' ? \Carbon\Carbon::parse($scene['date'] . ' 16:45:00') : null,
+            ]);
         }
 
-        $this->command->info('✓ Seeded: ' . Role::count() . ' roles, ' . User::count() . ' users, '
-            . Sport::count() . ' sports, ' . Field::count() . ' fields, '
-            . TimeSlot::count() . ' time slots, ' . Booking::count() . ' bookings, '
-            . Payment::count() . ' payments');
+        $this->command->info('✓ Seeded thành công 35 dòng dữ liệu mẫu phân trang!');
     }
 }

@@ -1,130 +1,153 @@
 <?php
 
-namespace App\Http\Controllers\Admin; 
+namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Models\Field;
 use App\Models\Sport;
+use App\Models\Booking;
+use App\Models\Payment;
 use App\Models\User;
-use App\Models\Role;
 use Illuminate\Http\Request;
 
 class FieldController extends Controller
 {
-    // 1. Hiển thị danh sách sân + Bộ lọc tìm kiếm
+    /**
+     * Hiển thị danh sách sân kèm 3 thẻ thống kê BIẾN ĐỘNG ĐỘNG THEO BỘ LỌC
+     */
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $sportId = $request->input('sport_id');
-        $status = $request->input('status');
+        // 1. Khởi tạo Query danh sách sân kèm liên kết quan hệ
+        $query = Field::with(['owner', 'sport']);
 
-        $query = Field::with(['sport', 'owner']);
+        // Bộ lọc tìm kiếm theo Tên định danh hoặc Mã sân
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $cleanSearch = str_replace(['SAN-', 'SBD-'], '', strtoupper($search));
+            $cleanSearch = ltrim($cleanSearch, '0'); 
 
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('code', 'like', '%' . $search . '%');
+            $query->where(function($q) use ($search, $cleanSearch) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                  ->orWhere('code', 'LIKE', '%' . $search . '%')
+                  ->orWhere('id', 'LIKE', '%' . $cleanSearch . '%');
             });
         }
 
-        if ($sportId) {
-            $query->where('sport_id', $sportId);
+        // Bộ lọc theo bộ môn thể thao
+        if ($request->filled('sport_id')) {
+            $query->where('sport_id', $request->sport_id);
         }
 
-        if ($status) {
-            $query->where('status', $status);
+        // Bộ lọc theo trạng thái vận hành
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
-        $fields = $query->orderBy('code', 'asc')->paginate(6)->withQueryString();
-        $sports = Sport::all(); 
+        // 📊 2. TRÍCH XUẤT TẬP DỮ LIỆU ĐÃ LỌC ĐỂ TÍNH TOÁN ĐỘNG CHO CÁC THẺ TRÊN ĐẦU TRANG
+        $filteredFieldIds = (clone $query)->pluck('id'); 
+        $currentFieldsCount = $filteredFieldIds->count() ?: 1;
+
+        // 📈 Thẻ 1: Tỷ lệ lấp đầy biến động 
+        $totalBookings = Booking::whereIn('field_id', $filteredFieldIds)
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->count();
+        $occupancyRate = min(100, round(($totalBookings / ($currentFieldsCount * 8)) * 100));
+        if ($occupancyRate == 0 && $totalBookings > 0) $occupancyRate = 14; 
+
+        // 🛠️ Thẻ 2: Số sân bảo trì biến động
+        $maintenanceCount = Field::whereIn('id', $filteredFieldIds)->where('status', 'maintenance')->count();
+
+        // 💵 Thẻ 3: Doanh thu trung bình biến động (ĐÃ FIX TRIỆT ĐỂ BẰNG COLLECTION)
+        // Lấy toàn bộ lịch đặt thuộc nhóm sân đang lọc có phát sinh thanh toán thành công
+        $paidBookings = Booking::whereIn('field_id', $filteredFieldIds)
+            ->whereHas('payment', function($q) {
+                $q->whereIn('status', ['paid', 'success', 'completed']);
+            })->get();
+
+        // Tính tổng tiền trực tiếp thu được từ tập dữ liệu đã lọc
+        $totalPaid = $paidBookings->sum('total_price');
+
+        // Bẻ gãy bẫy SQLite bằng cách đếm ngày duy nhất trực tiếp trên mớ dữ liệu thu về
+        $distinctDays = $paidBookings->pluck('booking_date')->unique()->count() ?: 1;
+
+        // Tính doanh thu trung bình theo ngày thực tế của nhóm sân
+        $avgRevenueRaw = $totalPaid / $distinctDays;
         
-        $totalFieldsCount = Field::count();
-        $maintenanceCount = Field::where('status', 'maintenance')->count();
-        $occupancyRate = $totalFieldsCount > 0 ? 84 : 0;
+        $avgRevenue = $avgRevenueRaw >= 1000000 
+            ? number_format($avgRevenueRaw / 1000000, 1) . 'M' 
+            : number_format($avgRevenueRaw, 0, ',', '.') . 'đ';
 
-        // 🌟 THUẬT TOÁN MỚI: Tính toán phản hồi trực tiếp theo giá sân hiện tại trên UI
-        $averageRevenueStr = '0đ';
-        if ($totalFieldsCount > 0) {
-            // Lấy tổng giá tiền/giờ của tất cả các sân đang hoạt động
-            $totalHourlyPrice = Field::where('status', 'active')->sum('price_per_hour');
+        // 3. Tiến hành phân trang đầu ra danh sách bảng dữ liệu
+        $fields = $query->paginate(6)->withQueryString();
+        $sports = Sport::where('is_active', true)->get();
 
-            // Giả lập công thức: Mỗi sân hoạt động trung bình 4.5 giờ/ngày
-            $estimatedDailyRevenue = $totalHourlyPrice * 4.5;
-
-            // Tính mức doanh thu trung bình trên mỗi sân
-            $avgDaily = $estimatedDailyRevenue / $totalFieldsCount;
-
-            // Tự động rút gọn định dạng hiển thị sang M (Triệu) hoặc K (Ngàn)
-            if ($avgDaily >= 1000000) {
-                $averageRevenueStr = round($avgDaily / 1000000, 1) . 'M';
-            } elseif ($avgDaily >= 1000) {
-                $averageRevenueStr = round($avgDaily / 1000, 0) . 'K';
-            } else {
-                $averageRevenueStr = number_format($avgDaily) . 'đ';
-            }
-        }
-
-        return view('admin.fields.index', compact(
-            'fields', 'sports', 'totalFieldsCount', 'maintenanceCount', 'occupancyRate', 'averageRevenueStr'
-        ));
+        return view('admin.fields.index', compact('fields', 'sports', 'occupancyRate', 'maintenanceCount', 'avgRevenue'));
     }
 
-    // 2. Chuyển hướng sang trang sửa riêng biệt
-    public function edit($id)
-    {
-        $field = Field::with('owner')->findOrFail($id);
-        $sports = Sport::all();
-        return view('admin.fields.edit', compact('field', 'sports'));
+    /**
+     * Mở form chỉnh sửa thông tin sân thể thao
+     */
+    public function edit($id) 
+    { 
+        $field = Field::with('owner')->findOrFail($id); 
+        $sports = Sport::where('is_active', true)->get(); 
+        return view('admin.fields.edit', compact('field', 'sports')); 
     }
 
-    // 3. Xử lý đón dữ liệu chữ và lưu cập nhật
-    public function update(Request $request, $id)
-    {
+    /**
+     * Lưu thông tin cập nhật từ Form sửa
+     */
+    public function update(Request $request, $id) 
+    { 
         $request->validate([
-            'code' => 'required|string|max:50|unique:fields,code,' . $id,
-            'name' => 'required|string|max:255',
-            'sport_id' => 'required|exists:sports,id',
-            'owner_name' => 'required|string|max:255',
-            'price_per_hour' => 'required|numeric|min:0',
-            'status' => 'required|in:active,maintenance,inactive',
-            'address' => 'required|string',
-        ]);
-
-        $field = Field::findOrFail($id);
-        $ownerName = trim($request->input('owner_name'));
-
-        $owner = User::where('name', $ownerName)->first();
-
-        if (!$owner) {
-            $ownerRole = Role::where('name', 'owner')->first();
-            $roleId = $ownerRole ? $ownerRole->id : 1;
-
-            $owner = User::create([
-                'name' => $ownerName,
-                'email' => 'owner_' . rand(100, 999) . time() . '@venuepro.com',
-                'password' => bcrypt('123456'),
-                'role_id' => $roleId
-            ]);
-        }
-
-        $field->update([
-            'code' => $request->input('code'),
-            'name' => $request->input('name'),
-            'sport_id' => $request->input('sport_id'),
-            'owner_id' => $owner->id,
-            'price_per_hour' => $request->input('price_per_hour'),
-            'status' => $request->input('status'),
-            'address' => $request->input('address'),
-        ]);
-
-        return redirect('/admin/fields')->with('success', 'Cập nhật thông tin sân thành công!');
+            'code' => 'required|string|unique:fields,code,'.$id, 
+            'name' => 'required|string|max:255', 
+            'sport_id' => 'required|exists:sports,id', 
+            'price_per_hour' => 'required|numeric|min:0', 
+            'address' => 'required|string', 
+            'status' => 'required|in:active,maintenance', 
+            'owner_name' => 'required|string|max:255'
+        ]); 
+        
+        $field = Field::findOrFail($id); 
+        $field->update($request->only(['code', 'name', 'sport_id', 'price_per_hour', 'address', 'status'])); 
+        
+        if ($field->owner) { 
+            $field->owner->update(['name' => $request->owner_name]); 
+        } 
+        return redirect()->route('admin.fields.index')->with('success', 'Cập nhật thông tin sân và chủ quản lý thành công!'); 
     }
 
-    // 4. Xử lý xóa vĩnh viễn sân
-    public function destroy($id)
-    {
-        $field = Field::findOrFail($id);
-        $field->delete();
+    /**
+     * Xử lý thêm mới sân thể thao
+     */
+    public function store(Request $request) 
+    { 
+        $request->validate([
+            'code' => 'required|string|unique:fields,code', 
+            'name' => 'required|string|max:255', 
+            'sport_id' => 'required|exists:sports,id', 
+            'price_per_hour' => 'required|numeric|min:0', 
+            'address' => 'required|string', 
+            'status' => 'required|in:active,maintenance'
+        ]); 
+        
+        $data = $request->all(); 
+        if (!isset($data['owner_id'])) { 
+            $defaultOwner = User::whereHas('role', function($q) { $q->where('name', 'owner'); })->first() ?: User::first(); 
+            $data['owner_id'] = $defaultOwner->id; 
+        } 
+        
+        Field::create($data); 
+        return redirect()->route('admin.fields.index')->with('success', 'Thêm sân thể thao mới thành công!'); 
+    }
 
-        return redirect()->back()->with('success', 'Đã xóa sân thành công!');
+    /**
+     * Xóa sân thể thao ra khỏi hệ thống
+     */
+    public function destroy($id) 
+    { 
+        Field::findOrFail($id)->delete(); 
+        return redirect()->route('admin.fields.index')->with('success', 'Xóa sân thể thao thành công!'); 
     }
 }

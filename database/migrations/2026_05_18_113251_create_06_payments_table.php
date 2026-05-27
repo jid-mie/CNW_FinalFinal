@@ -13,7 +13,10 @@ return new class extends Migration
             $table->foreignId('booking_id')->unique()->constrained('bookings')->cascadeOnDelete();
             $table->decimal('amount', 12, 2);
             $table->enum('method', ['cash', 'bank_transfer', 'momo', 'vnpay'])->default('cash');
-            $table->enum('status', ['unpaid', 'paid', 'refunded'])->default('unpaid');
+            
+            // 🎯 ĐÃ SỬA: Mở rộng tập hợp enum để chấp nhận trạng thái 'pending' từ seeder ma trận dữ liệu mẫu
+            $table->enum('status', ['unpaid', 'pending', 'paid', 'refunded', 'completed', 'success'])->default('unpaid');
+            
             $table->string('transaction_code')->nullable()->unique();
             $table->timestamp('paid_at')->nullable();
             $table->text('note')->nullable();
