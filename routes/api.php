@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Owner\BookingController;
+use App\Http\Controllers\Api\Owner\CustomerController;
+use App\Http\Controllers\Api\Owner\FieldController;
+use App\Http\Controllers\Api\Owner\TimeSlotController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,60');
@@ -12,6 +16,7 @@ Route::post('/refresh-token', [AuthController::class, 'refresh']);
 Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::put('/user', [AuthController::class, 'updateProfile']);
 
     // Admin API Routes
     Route::middleware('role:admin')->prefix('admin')->group(function () {
@@ -19,8 +24,48 @@ Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     });
 
     // Owner API Routes
-    Route::middleware('role:owner')->prefix('owner')->group(function () {
-        // Owner specific API endpoints
+    Route::middleware('role:owner')->prefix('owner')->name('api.owner.')->group(function () {
+        // Dashboard stats
+        Route::get('/stats', [BookingController::class, 'stats'])->name('stats');
+
+        // Revenue report
+        Route::get('/revenue', [BookingController::class, 'revenue'])->name('revenue');
+
+        // Fields CRUD
+        Route::apiResource('fields', FieldController::class)->names([
+            'index' => 'fields.index',
+            'store' => 'fields.store',
+            'show' => 'fields.show',
+            'update' => 'fields.update',
+            'destroy' => 'fields.destroy',
+        ]);
+
+        // Field image
+        Route::post('/fields/{field}/image', [FieldController::class, 'uploadImage'])->name('fields.upload-image');
+        Route::delete('/fields/{field}/image', [FieldController::class, 'deleteImage'])->name('fields.delete-image');
+
+        // Time slots
+        Route::get('/fields/{field}/time-slots', [TimeSlotController::class, 'index'])->name('time-slots.index');
+        Route::post('/fields/{field}/time-slots', [TimeSlotController::class, 'store'])->name('time-slots.store');
+        Route::put('/fields/{field}/time-slots/{timeSlot}', [TimeSlotController::class, 'update'])->name('time-slots.update');
+        Route::delete('/fields/{field}/time-slots/{timeSlot}', [TimeSlotController::class, 'destroy'])->name('time-slots.destroy');
+        Route::post('/fields/{field}/time-slots/generate-default', [TimeSlotController::class, 'generateDefault'])->name('time-slots.generate-default');
+
+        // Bookings
+        Route::get('/bookings/export', [BookingController::class, 'exportBookings'])->name('bookings.export');
+        Route::get('/bookings/calendar', [BookingController::class, 'calendar'])->name('bookings.calendar');
+        Route::get('/bookings/pending', [BookingController::class, 'pending'])->name('bookings.pending');
+        Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+        Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+        Route::put('/bookings/{booking}', [BookingController::class, 'update'])->name('bookings.update');
+        Route::put('/bookings/{booking}/checkin', [BookingController::class, 'checkin'])->name('bookings.checkin');
+
+        // Revenue export
+        Route::get('/revenue/export', [BookingController::class, 'exportRevenue'])->name('revenue.export');
+
+        // Customers
+        Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
     });
 
     // Customer API Routes
