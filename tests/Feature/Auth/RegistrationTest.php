@@ -28,4 +28,7 @@ class RegistrationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect(route('login', absolute: false));
     }
+
 }
+
+

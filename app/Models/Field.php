@@ -12,6 +12,59 @@ class Field extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected static function booted()
+    {
+        static::creating(function ($field) {
+            if (empty($field->code)) {
+                $field->code = static::generateUniqueCode($field->sport_id);
+            }
+        });
+
+        static::updating(function ($field) {
+            if (empty($field->code)) {
+                $field->code = static::generateUniqueCode($field->sport_id);
+            }
+        });
+    }
+
+    public static function generateUniqueCode($sportId)
+    {
+        $sport = Sport::find($sportId);
+        $prefix = 'SAN';
+        if ($sport) {
+            $mapping = [
+                'bong-da' => 'SBD',
+                'tennis' => 'TN',
+                'cau-long' => 'BL',
+                'bong-ro' => 'BR',
+                'bong-chuyen' => 'BC',
+                'bong-ban' => 'BB',
+                'pickleball' => 'PB',
+                'da-cau' => 'DC',
+            ];
+            $prefix = $mapping[$sport->slug] ?? strtoupper(substr($sport->slug, 0, 3));
+        }
+
+        $latest = static::where('code', 'LIKE', $prefix . '-%')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $num = 1;
+        if ($latest && preg_match('/-(\d+)$/', $latest->code, $matches)) {
+            $num = intval($matches[1]) + 1;
+        }
+
+        $code = $prefix . '-' . str_pad($num, 3, '0', STR_PAD_LEFT);
+        
+        while (static::where('code', $code)->exists()) {
+            $num++;
+            $code = $prefix . '-' . str_pad($num, 3, '0', STR_PAD_LEFT);
+        }
+
+        return $code;
+    }
+
+
     // Gom đầy đủ tất cả các trường dữ liệu của cả bạn và nhóm
     protected $fillable = [
         'owner_id', 

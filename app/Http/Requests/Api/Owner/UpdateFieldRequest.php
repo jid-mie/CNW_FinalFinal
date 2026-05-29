@@ -13,10 +13,13 @@ class UpdateFieldRequest extends FormRequest
 
     public function rules(): array
     {
+        $field = $this->route('field');
+        $fieldId = $field instanceof \Illuminate\Database\Eloquent\Model ? $field->id : $field;
+
         return [
             'sport_id' => ['sometimes', 'exists:sports,id'],
             'name' => ['sometimes', 'string', 'max:255'],
-            'code' => ['sometimes', 'string', 'max:50', 'unique:fields,code,' . $this->route('field')],
+            'code' => ['sometimes', 'string', 'max:50', 'unique:fields,code,' . $fieldId],
             'description' => ['nullable', 'string', 'max:2000'],
             'address' => ['sometimes', 'string', 'max:500'],
             'price_per_hour' => ['sometimes', 'numeric', 'min:0', 'max:999999999.99'],

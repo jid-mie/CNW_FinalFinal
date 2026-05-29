@@ -22,13 +22,41 @@ class DashboardController extends Controller
             ->where('status', 'pending')
             ->count();
         $totalRevenue = (float) DB::table('payments')
-            ->where('status', 'paid')
+            ->whereIn('status', ['paid', 'success', 'completed'])
             ->sum('amount');
 
         $recentUsers = User::with('role')
             ->latest()
             ->limit(5)
             ->get();
+
+        // 📈 Doanh thu 6 tháng gần nhất (phương pháp an toàn độc lập hệ quản trị cơ sở dữ liệu)
+        $revenueLabels = [];
+        $revenueData = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthStart = $month->copy()->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+            
+            $monthlySum = (float) DB::table('payments')
+                ->whereIn('status', ['paid', 'success', 'completed'])
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->sum('amount');
+                
+            $revenueLabels[] = $month->format('m/Y');
+            $revenueData[] = $monthlySum;
+        }
+
+        // ⚽ Thống kê số lượng đặt sân theo từng môn thể thao
+        $sportsBookings = DB::table('bookings')
+            ->join('fields', 'bookings.field_id', '=', 'fields.id')
+            ->join('sports', 'fields.sport_id', '=', 'sports.id')
+            ->select('sports.name', DB::raw('count(bookings.id) as count'))
+            ->groupBy('sports.name')
+            ->get();
+            
+        $sportLabels = $sportsBookings->pluck('name')->toArray();
+        $sportData = $sportsBookings->pluck('count')->toArray();
 
         return view('admin.dashboard', compact(
             'totalUsers',
@@ -37,6 +65,10 @@ class DashboardController extends Controller
             'pendingBookings',
             'totalRevenue',
             'recentUsers',
+            'revenueLabels',
+            'revenueData',
+            'sportLabels',
+            'sportData'
         ));
     }
 }

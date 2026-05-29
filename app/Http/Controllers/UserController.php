@@ -43,7 +43,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('admin.users.index')
-            ->with('success', 'User created successfully.');
+            ->with('success', 'Tài khoản đã được tạo thành công.');
     }
 
     public function show(User $user): View
@@ -68,11 +68,16 @@ class UserController extends Controller
     {
         $this->ensureManagedUser($user);
 
-        $user->update($request->validated());
+        $data = $request->validated();
+        if (array_key_exists('password', $data) && blank($data['password'])) {
+            unset($data['password']);
+        }
+
+        $user->update($data);
 
         return redirect()
             ->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
+            ->with('success', 'Tài khoản đã được cập nhật thành công.');
     }
 
     public function destroy(User $user): RedirectResponse
@@ -83,7 +88,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', 'Tài khoản đã được xóa thành công.');
     }
 
     private function ensureManagedUser(User $user): void

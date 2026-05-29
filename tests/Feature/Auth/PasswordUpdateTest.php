@@ -44,6 +44,7 @@ class PasswordUpdateTest extends TestCase
                 'password_confirmation' => 'Password123!',
             ]);
 
+
         $response
             ->assertSessionHasErrorsIn('updatePassword', 'current_password')
             ->assertRedirect('/profile');
