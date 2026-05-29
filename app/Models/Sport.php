@@ -11,8 +11,17 @@ class Sport extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'description', 'is_active'];
+    // Hòa trộn đầy đủ các trường của cả bạn và nhóm để form CRUD chạy không bị lỗi
+    protected $fillable = [
+        'name', 
+        'slug', 
+        'description', 
+        'image', 
+        'badge', 
+        'is_active'
+    ];
 
+    // Bộ ép kiểu dữ liệu chuẩn từ nhánh main
     protected function casts(): array
     {
         return [
@@ -20,6 +29,7 @@ class Sport extends Model
         ];
     }
 
+    // ⚽ Mối quan hệ: Một môn thể thao có thể có nhiều Sân chi tiết (Fields)
     public function fields(): HasMany
     {
         return $this->hasMany(Field::class);

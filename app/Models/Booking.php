@@ -11,11 +11,20 @@ class Booking extends Model
 {
     use HasFactory;
 
+    // Giữ nguyên đầy đủ các trường dữ liệu từ nhánh chính của nhóm
     protected $fillable = [
-        'customer_id', 'field_id', 'time_slot_id', 'booking_date',
-        'total_price', 'status', 'note', 'confirmed_at', 'cancelled_at',
+        'customer_id', 
+        'field_id', 
+        'time_slot_id', 
+        'booking_date',
+        'total_price', 
+        'status', 
+        'note', 
+        'confirmed_at', 
+        'cancelled_at',
     ];
 
+    // Ép kiểu dữ liệu chuẩn để tính toán không bị lỗi định dạng
     protected function casts(): array
     {
         return [
@@ -26,21 +35,25 @@ class Booking extends Model
         ];
     }
 
+    // 🌟 Mối quan hệ lấy thông tin tài khoản khách hàng đặt sân
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
     }
 
+    // 🏢 Mối quan hệ lấy thông tin Sân thể thao
     public function field(): BelongsTo
     {
-        return $this->belongsTo(Field::class);
+        return $this->belongsTo(Field::class, 'field_id');
     }
 
+    // 🕒 Mối quan hệ lấy Khung giờ đặt sân
     public function timeSlot(): BelongsTo
     {
         return $this->belongsTo(TimeSlot::class);
     }
 
+    // 💳 Mối quan hệ lấy Hóa đơn thanh toán tương ứng
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);

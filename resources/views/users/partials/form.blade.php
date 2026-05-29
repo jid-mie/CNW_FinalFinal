@@ -17,9 +17,9 @@
 <div>
     <label class="block mb-1 font-medium" for="role_id">Role</label>
     <select class="w-full border rounded px-3 py-2" id="role_id" name="role_id">
-        <option value="">-- Select role --</option>
-        @foreach ($roles ?? [] as $role)
-            <option value="{{ $role->id }}" @selected((string) old('role_id', $user->role_id ?? '') === (string) $role->id)>
+        <option value="">-- Select customer / owner --</option>
+        @foreach (($roles ?? []) as $role)
+            <option value="{{ $role->id }}" {{ (string) old('role_id', optional($user ?? null)->role_id ?? '') === (string) $role->id ? 'selected' : '' }}>
                 {{ $role->display_name ?? ucfirst($role->name) }}
             </option>
         @endforeach

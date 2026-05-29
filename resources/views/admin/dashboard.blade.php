@@ -17,15 +17,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Tổng người dùng</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">1,248</h3>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($totalUsers) }}</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-xs text-[#006d36] font-bold">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                    <span>+12% tháng này</span>
+                    <span>Khách hàng: {{ number_format($totalCustomers) }}</span>
                 </div>
             </div>
 
@@ -33,30 +32,29 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Chủ sân (Owner)</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">84</h3>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($totalOwners) }}</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-xs text-[#006d36] font-bold">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                    <span>+5 cơ sở mới</span>
+                    <span>Được phép quản trị bởi admin</span>
                 </div>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] p-6 transition-all hover:shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Tổng sân đấu</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">312</h3>
+                        <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Đặt sân chờ xử lý</p>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($pendingBookings) }}</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h2m-4-3h9M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-xs text-[#45464d] font-bold">
-                    <span>Hoạt động 98% công suất</span>
+                    <span>Quản lý theo luồng booking của hệ thống</span>
                 </div>
             </div>
 
@@ -64,15 +62,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-semibold text-[#45464d] uppercase tracking-wider">Doanh thu hệ thống</p>
-                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">154.6M</h3>
+                        <h3 class="text-3xl font-bold font-heading text-[#0f172a] mt-1">{{ number_format($totalRevenue, 0, ',', '.') }} đ</h3>
                     </div>
                     <div class="p-3 bg-slate-50 text-[#0f172a] rounded-lg">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1M10 21h4a2 2 0 002-2V7a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                 </div>
                 <div class="mt-4 flex items-center text-xs text-[#006d36] font-bold">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                    <span>+18.5% so với tuần trước</span>
+                    <span>Chỉ tính giao dịch đã thanh toán</span>
                 </div>
             </div>
         </div>
