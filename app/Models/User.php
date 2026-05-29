@@ -15,9 +15,10 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['role_id', 'name', 'email', 'phone', 'address', 'password'])]
+#[Fillable(['role_id', 'name', 'email', 'phone', 'address', 'password', 'avatar'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable // implements MustVerifyEmailContract
+
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasApiTokens, Notifiable, SoftDeletes; // MustVerifyEmailTrait

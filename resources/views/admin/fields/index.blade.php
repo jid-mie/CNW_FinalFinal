@@ -100,8 +100,16 @@
             <tbody class="text-xs text-slate-600 divide-y divide-slate-100 font-medium">
                 @forelse($fields as $field)
                 <tr class="hover:bg-slate-50/40 transition">
-                    <td class="p-4 font-bold text-slate-700 font-mono text-xs uppercase">{{ $field->code ?? 'N/A' }}</td>
-                    <td class="p-4 font-bold text-slate-800">{{ $field->name }}</td>
+                    <td class="p-4 font-bold font-mono text-xs uppercase">
+                        <a href="{{ route('admin.fields.show', $field->id) }}" class="text-[#0f172a] hover:text-[#3cd882] transition-colors">
+                            {{ $field->code ?? 'N/A' }}
+                        </a>
+                    </td>
+                    <td class="p-4 font-bold">
+                        <a href="{{ route('admin.fields.show', $field->id) }}" class="text-slate-800 hover:text-[#3cd882] transition-colors">
+                            {{ $field->name }}
+                        </a>
+                    </td>
                     <td class="p-4 text-slate-500 font-semibold">{{ $field->owner->name ?? 'N/A' }}</td>
                     <td class="p-4 text-slate-500 font-semibold">
                         @if($field->sport && $field->sport->slug === 'bong-da') ⚽ 

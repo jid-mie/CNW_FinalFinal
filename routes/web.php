@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Admin\SportController; 
 use App\Http\Controllers\Admin\FieldController;
 use App\Http\Controllers\Admin\PaymentController; 
+use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Web\Owner\BookingController as OwnerBookingController;
 use App\Http\Controllers\Web\Owner\CustomerController as OwnerCustomerController;
 use App\Http\Controllers\Web\Owner\DashboardController as OwnerDashboardController;
@@ -53,15 +55,30 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 Phân hệ quản lý Sân chi tiết (Fields)
     Route::get('/fields', [FieldController::class, 'index'])->name('fields.index');
+    Route::get('/fields/create', [FieldController::class, 'create'])->name('fields.create');
+    Route::get('/fields/{id}', [FieldController::class, 'show'])->name('fields.show');
     Route::get('/fields/{id}/edit', [FieldController::class, 'edit'])->name('fields.edit');
     Route::post('/fields', [FieldController::class, 'store'])->name('fields.store');
     Route::post('/fields/{id}/update', [FieldController::class, 'update'])->name('fields.update');
     Route::post('/fields/{id}/delete', [FieldController::class, 'destroy'])->name('fields.destroy');
     
+    // 📅 Phân hệ quản lý Đặt lịch (Bookings)
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/pending', [BookingController::class, 'pending'])->name('bookings.pending');
+    Route::get('/bookings/calendar', [BookingController::class, 'calendar'])->name('bookings.calendar');
+    Route::post('/bookings/{booking}/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+    Route::post('/bookings/{booking}/checkin', [BookingController::class, 'checkin'])->name('bookings.checkin');
+
     // 💳 Phân hệ quản lý Thanh toán (Payments) - Đã tối ưu thứ tự ưu tiên tránh lỗi kẹt ID
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
     Route::post('/payments/{id}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
+
+    // 🛡️ Phân hệ quản lý Bảo mật (Security Settings)
+    Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
+    Route::post('/security/tokens/{id}/toggle', [SecurityController::class, 'toggleToken'])->name('security.tokens.toggle');
+    Route::post('/security/logs/clear', [SecurityController::class, 'clearLogs'])->name('security.logs.clear');
 });
 
 

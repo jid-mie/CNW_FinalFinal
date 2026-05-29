@@ -143,6 +143,21 @@ class FieldController extends Controller
     }
 
     /**
+     * Hiển thị chi tiết sân, bao gồm các khung giờ và lịch sử đặt sân
+     */
+    public function show($id)
+    {
+        $field = Field::with(['owner', 'sport', 'timeSlots'])->findOrFail($id);
+        $bookings = Booking::where('field_id', $id)
+            ->with(['customer', 'timeSlot', 'payment'])
+            ->orderBy('booking_date', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
+        return view('admin.fields.show', compact('field', 'bookings'));
+    }
+
+    /**
      * Xóa sân thể thao ra khỏi hệ thống
      */
     public function destroy($id) 

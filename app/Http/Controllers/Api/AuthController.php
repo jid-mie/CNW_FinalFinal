@@ -31,6 +31,12 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
+            \App\Models\FailedLoginAttempt::create([
+                'email' => $request->input('email'),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'attempted_at' => now(),
+            ]);
             return $this->errorResponse('Invalid email or password', 401);
         }
 
@@ -56,6 +62,10 @@ class AuthController extends Controller
 
         if ($token->expires_at && $token->expires_at->isPast()) {
             return $this->errorResponse('Refresh token has expired', 401);
+        }
+
+        if (isset($token->is_active) && !$token->is_active) {
+            return $this->errorResponse('Refresh token has been temporarily deactivated', 401);
         }
 
         $user = $token->tokenable;
