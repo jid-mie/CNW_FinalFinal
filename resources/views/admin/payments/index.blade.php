@@ -25,9 +25,9 @@
             <h1 class="text-xl font-bold text-slate-800 tracking-tight uppercase">Quản lý thanh toán hệ thống</h1>
             <p class="text-xs text-slate-400 mt-1 font-medium">Theo dõi lịch sử dòng tiền phát sinh từ hệ thống đặt lịch.</p>
         </div>
-        <button type="button" class="bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2 transition shadow-sm tracking-wider">
-            <span>📥</span> <span>XUẤT BÁO CÁO (CSV)</span>
-        </button>
+        <a href="{{ route('admin.payments.export-csv', request()->all()) }}" class="bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center space-x-2 transition shadow-sm tracking-wider uppercase inline-flex items-center">
+            <span>📊</span> <span>Xuất báo cáo (CSV)</span>
+        </a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

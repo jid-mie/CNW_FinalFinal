@@ -70,8 +70,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
     Route::post('/bookings/{booking}/checkin', [BookingController::class, 'checkin'])->name('bookings.checkin');
 
-    // 💳 Phân hệ quản lý Thanh toán (Payments) - Đã tối ưu thứ tự ưu tiên tránh lỗi kẹt ID
+    // 💳 Phân hệ quản lý Thanh toán (Payments) - Đã tối ưu thứ tự ưu tiên và tích hợp nút xuất báo cáo
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/export-csv', [PaymentController::class, 'exportCSV'])->name('payments.export-csv');
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
     Route::post('/payments/{id}/update-status', [PaymentController::class, 'updateStatus'])->name('payments.update-status');
 
