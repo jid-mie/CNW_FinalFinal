@@ -93,4 +93,102 @@ class AdminDashboardTest extends TestCase
         $response->assertViewHas('pendingBookings', 1);
         $response->assertViewHas('totalRevenue', 50000.0);
     }
+
+    public function test_admin_dashboard_excludes_soft_deleted_sports_and_fields(): void
+    {
+        $adminRole = Role::create(['name' => 'admin', 'display_name' => 'Admin']);
+        $ownerRole = Role::create(['name' => 'owner', 'display_name' => 'Owner']);
+        $customerRole = Role::create(['name' => 'customer', 'display_name' => 'Customer']);
+
+        $admin = User::factory()->create(['role_id' => $adminRole->id]);
+        $owner = User::factory()->create(['role_id' => $ownerRole->id]);
+        $customer = User::factory()->create(['role_id' => $customerRole->id]);
+
+        // Create an active sport and booking
+        $activeSportId = DB::table('sports')->insertGetId([
+            'name' => 'Tennis',
+            'slug' => 'tennis',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $activeFieldId = DB::table('fields')->insertGetId([
+            'owner_id' => $owner->id,
+            'sport_id' => $activeSportId,
+            'name' => 'Tennis Field',
+            'code' => 'T001',
+            'address' => '123 Tennis St',
+            'price_per_hour' => 150000,
+            'open_time' => '06:00:00',
+            'close_time' => '22:00:00',
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $activeTimeSlotId = DB::table('time_slots')->insertGetId([
+            'field_id' => $activeFieldId,
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('bookings')->insert([
+            'customer_id' => $customer->id,
+            'field_id' => $activeFieldId,
+            'time_slot_id' => $activeTimeSlotId,
+            'booking_date' => now()->toDateString(),
+            'total_price' => 150000,
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create a soft-deleted sport and booking
+        $deletedSportId = DB::table('sports')->insertGetId([
+            'name' => 'Football Deleted',
+            'slug' => 'football-deleted',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'deleted_at' => now(),
+        ]);
+        $deletedSportFieldId = DB::table('fields')->insertGetId([
+            'owner_id' => $owner->id,
+            'sport_id' => $deletedSportId,
+            'name' => 'Deleted Sport Field',
+            'code' => 'DS01',
+            'address' => '123 Main St',
+            'price_per_hour' => 100000,
+            'open_time' => '06:00:00',
+            'close_time' => '22:00:00',
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $deletedSportTimeSlotId = DB::table('time_slots')->insertGetId([
+            'field_id' => $deletedSportFieldId,
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('bookings')->insert([
+            'customer_id' => $customer->id,
+            'field_id' => $deletedSportFieldId,
+            'time_slot_id' => $deletedSportTimeSlotId,
+            'booking_date' => now()->toDateString(),
+            'total_price' => 100000,
+            'status' => 'pending',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->actingAs($admin)->get('/admin/dashboard');
+
+        $response->assertOk();
+        $response->assertViewHas('sportLabels', ['Tennis']);
+        $response->assertViewHas('sportData', [1]);
+    }
 }

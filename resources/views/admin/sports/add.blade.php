@@ -40,7 +40,8 @@
                     <div class="flex items-center justify-between p-3 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
                         <input type="file" name="image_file" class="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[11px] file:font-bold file:bg-[#0f172a] file:text-white hover:file:bg-slate-800 file:transition file:cursor-pointer">
                     </div>
-                    
+                </div>
+            </div>
 
             <div>
                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Mô tả đặc trưng hệ thống</label>

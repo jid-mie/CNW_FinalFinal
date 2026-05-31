@@ -17,6 +17,7 @@ class Sport extends Model
         'slug', 
         'description', 
         'image', 
+        'image_url',
         'badge', 
         'is_active'
     ];

@@ -35,13 +35,20 @@ class SportController extends Controller
             'name' => 'required|string|max:255|unique:sports,name',
             'description' => 'nullable|string',
             'image_url' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
+
+        $imageUrl = $request->image_url;
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('sports', 'public');
+            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+        }
 
         Sport::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'description' => $request->description,
-            'image_url' => $request->image_url,
+            'image_url' => $imageUrl,
             'is_active' => true,
         ]);
 
@@ -66,15 +73,30 @@ class SportController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image_url' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $sport = Sport::findOrFail($id);
         
+        $imageUrl = $request->filled('image_url') ? $request->image_url : $sport->image_url;
+        if ($request->hasFile('image_file')) {
+            // Delete old file if it was uploaded to storage
+            if ($sport->image_url) {
+                $parsedOldUrl = parse_url($sport->image_url, PHP_URL_PATH);
+                $oldPath = ltrim(str_replace('/storage/', '', $parsedOldUrl), '/');
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+            }
+            $path = $request->file('image_file')->store('sports', 'public');
+            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+        }
+
         $sport->update([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
             'description' => $request->description,
-            'image_url' => $request->image_url,
+            'image_url' => $imageUrl,
         ]);
 
         return redirect()->route('admin.sports.index')->with('success', 'Cập nhật thông tin môn thể thao thành công!');

@@ -47,10 +47,12 @@ class DashboardController extends Controller
             $revenueData[] = $monthlySum;
         }
 
-        // ⚽ Thống kê số lượng đặt sân theo từng môn thể thao
+        // ⚽ Thống kê số lượng đặt sân theo từng môn thể thao (loại trừ các môn và sân đã xóa tạm)
         $sportsBookings = DB::table('bookings')
             ->join('fields', 'bookings.field_id', '=', 'fields.id')
             ->join('sports', 'fields.sport_id', '=', 'sports.id')
+            ->whereNull('sports.deleted_at')
+            ->whereNull('fields.deleted_at')
             ->select('sports.name', DB::raw('count(bookings.id) as count'))
             ->groupBy('sports.name')
             ->get();
