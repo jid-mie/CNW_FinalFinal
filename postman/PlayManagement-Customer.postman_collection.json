@@ -1,0 +1,407 @@
+{
+    "info": {
+        "name": "PlayManagement Customer Flow",
+        "_postman_id": "c9c8b3e8-7d2d-4d6d-9f2a-7d0b4f6d6d11",
+        "description": "Customer flow for PlayManagement: login, browse sports/fields/time slots, create booking, pay booking, and verify records.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "01 - Login",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "const response = pm.response.json();",
+                            "if (response && response.data && response.data.access_token) {",
+                            "  pm.environment.set('token', response.data.access_token);",
+                            "}",
+                            "if (response && response.data && response.data.refresh_token) {",
+                            "  pm.environment.set('refresh_token', response.data.refresh_token);",
+                            "}",
+                            ""
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"password\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/login",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "login"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "02 - List Sports",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/sports",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "sports"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "03 - List Fields",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/fields?sport_id=1",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "fields"
+                    ],
+                    "query": [
+                        {
+                            "key": "sport_id",
+                            "value": "1"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "04 - List Time Slots",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/fields/{{field_id}}/time-slots?date={{booking_date}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "fields",
+                        "{{field_id}}",
+                        "time-slots"
+                    ],
+                    "query": [
+                        {
+                            "key": "date",
+                            "value": "{{booking_date}}"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "name": "05 - Create Booking",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "const response = pm.response.json();",
+                            "if (response && response.data && response.data.id) {",
+                            "  pm.environment.set('booking_id', response.data.id);",
+                            "}",
+                            ""
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"field_id\": {{field_id}},\n  \"time_slot_id\": {{time_slot_id}},\n  \"booking_date\": \"{{booking_date}}\",\n  \"note\": \"{{booking_note}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/customer/bookings",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "bookings"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "06 - List My Bookings",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/bookings",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "bookings"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "07 - Booking Detail",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/bookings/{{booking_id}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "bookings",
+                        "{{booking_id}}"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "08 - Create Payment",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            "const response = pm.response.json();",
+                            "if (response && response.data && response.data.id) {",
+                            "  pm.environment.set('payment_id', response.data.id);",
+                            "}",
+                            ""
+                        ]
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"method\": \"cash\",\n  \"note\": \"{{payment_note}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/customer/bookings/{{booking_id}}/payment",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "bookings",
+                        "{{booking_id}}",
+                        "payment"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "09 - List Payments",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/payments",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "payments"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "10 - Payment Detail",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{token}}"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/customer/payments/{{payment_id}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "customer",
+                        "payments",
+                        "{{payment_id}}"
+                    ]
+                }
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://127.0.0.1:8000"
+        },
+        {
+            "key": "token",
+            "value": ""
+        },
+        {
+            "key": "refresh_token",
+            "value": ""
+        },
+        {
+            "key": "field_id",
+            "value": "1"
+        },
+        {
+            "key": "time_slot_id",
+            "value": "1"
+        },
+        {
+            "key": "booking_date",
+            "value": "2026-05-31"
+        },
+        {
+            "key": "booking_note",
+            "value": "Booking test from Postman collection"
+        },
+        {
+            "key": "booking_id",
+            "value": ""
+        },
+        {
+            "key": "payment_id",
+            "value": ""
+        },
+        {
+            "key": "payment_note",
+            "value": "Payment test from Postman collection"
+        }
+    ]
+}

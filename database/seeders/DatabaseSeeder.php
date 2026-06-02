@@ -2,11 +2,15 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use Database\Seeders\BookingsSeeder;
+use Database\Seeders\FieldsSeeder;
+use Database\Seeders\PaymentsSeeder;
+use Database\Seeders\RolesSeeder;
+use Database\Seeders\SportsSeeder;
+use Database\Seeders\TimeSlotsSeeder;
+use Database\Seeders\UsersSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,19 +18,14 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $admin = Role::updateOrCreate(['name' => 'admin'], ['display_name' => 'Admin']);
-        Role::updateOrCreate(['name' => 'owner'], ['display_name' => 'Owner']);
-        Role::updateOrCreate(['name' => 'customer'], ['display_name' => 'Customer']);
-
-        $user = User::updateOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'role_id' => $admin->id,
-                'name' => 'Admin',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $user->email_verified_at = now();
-        $user->save();
+        $this->call([
+            RolesSeeder::class,
+            UsersSeeder::class,
+            SportsSeeder::class,
+            FieldsSeeder::class,
+            TimeSlotsSeeder::class,
+            BookingsSeeder::class,
+            PaymentsSeeder::class,
+        ]);
     }
 }
