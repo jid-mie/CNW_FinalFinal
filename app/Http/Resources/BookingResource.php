@@ -11,21 +11,17 @@ class BookingResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'booking_date' => $this->booking_date,
-            'total_price' => $this->total_price,
+            'customer' => new UserResource($this->whenLoaded('customer')),
+            'field' => new FieldResource($this->whenLoaded('field')),
+            'time_slot' => new TimeSlotResource($this->whenLoaded('timeSlot')),
+            'booking_date' => $this->booking_date?->format('Y-m-d'),
+            'total_price' => (float) $this->total_price,
             'status' => $this->status,
             'note' => $this->note,
             'confirmed_at' => $this->confirmed_at,
             'cancelled_at' => $this->cancelled_at,
-            'field' => new FieldResource($this->whenLoaded('field')),
-            'time_slot' => [
-                'id' => $this->timeSlot?->id,
-                'start_time' => $this->timeSlot?->start_time,
-                'end_time' => $this->timeSlot?->end_time,
-            ],
             'payment' => new PaymentResource($this->whenLoaded('payment')),
             'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }

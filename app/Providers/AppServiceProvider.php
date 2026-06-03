@@ -28,5 +28,13 @@ class AppServiceProvider extends ServiceProvider
 
             return app()->isProduction() ? $rule->uncompromised() : $rule;
         });
+
+        // Validate that Sanctum personal access tokens are active
+        \Laravel\Sanctum\Sanctum::authenticateAccessTokensUsing(function ($accessToken, $isValid) {
+            if (isset($accessToken->is_active) && !$accessToken->is_active) {
+                return false;
+            }
+            return $isValid;
+        });
     }
 }

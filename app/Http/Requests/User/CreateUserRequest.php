@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\User;
 
+use App\Enums\RoleEnum;
+use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,6 +17,10 @@ final class CreateUserRequest extends FormRequest
     public function rules(): array
     {
         $userId = $this->route('user')?->id;
+        $managedRoleIds = Role::query()
+            ->whereIn('name', [RoleEnum::CUSTOMER->value, RoleEnum::OWNER->value])
+            ->pluck('id')
+            ->all();
         $passwordRules = $this->isMethod('post')
             ? ['required', 'string', 'min:8']
             : ['nullable', 'string', 'min:8'];
@@ -23,7 +29,7 @@ final class CreateUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => $passwordRules,
-            'role_id' => ['nullable', 'exists:roles,id'],
+            'role_id' => ['required', Rule::in($managedRoleIds)],
             'phone' => ['nullable', 'string', 'max:30'],
             'address' => ['nullable', 'string', 'max:255'],
         ];

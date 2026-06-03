@@ -1,0 +1,14 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Role extends Model
+{
+    // Cho phép nạp nhanh dữ liệu vào các cột tương ứng trong DB
+    protected $fillable = [
+        'name',
+        'display_name'
+    ];
+}

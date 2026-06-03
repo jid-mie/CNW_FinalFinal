@@ -1,16 +1,39 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+            <h2 class="font-bold font-heading text-2xl text-[#0f172a] uppercase tracking-wide">
+                {{ __('Chỉnh sửa Tài khoản') }}
+            </h2>
+            <a href="{{ route('admin.users.index') }}" class="inline-flex items-center justify-center px-3.5 py-2 bg-white text-slate-700 border border-[#e2e8f0] text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Quay lại
+            </a>
+        </div>
+    </x-slot>
 
-@section('content')
-    <div class="bg-white rounded shadow p-6">
-        <h1 class="text-2xl font-bold mb-4">Edit User</h1>
+    <div class="py-6">
+        <div class="max-w-3xl mx-auto bg-white overflow-hidden shadow-sm rounded-xl border border-[#e2e8f0] transition-all">
+            <div class="p-6 border-b border-[#e2e8f0] bg-slate-50">
+                <h3 class="text-lg font-bold font-heading text-[#0f172a] uppercase tracking-wide">Cập nhật thông tin tài khoản</h3>
+                <p class="text-xs text-[#45464d] mt-1">Thay đổi các thông tin cần thiết dưới đây và bấm lưu để cập nhật thông tin tài khoản.</p>
+            </div>
 
-        <form action="{{ route('users.update', $user) }}" method="POST" class="space-y-4">
-            @csrf
-            @method('PUT')
-            @include('users.partials.form')
+            <form action="{{ route('admin.users.update', $user) }}" method="POST" class="p-6 space-y-6">
+                @csrf
+                @method('PUT')
+                
+                @include('users.partials.form')
 
-            <button class="bg-blue-600 text-white px-4 py-2 rounded" type="submit">Update</button>
-            <a class="ml-2 text-gray-600" href="{{ route('users.index') }}">Cancel</a>
-        </form>
+                <div class="pt-6 border-t border-[#e2e8f0] flex justify-end gap-3">
+                    <a href="{{ route('admin.users.index') }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-white text-slate-700 border border-[#e2e8f0] text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm hover:bg-slate-50 transition-colors">
+                        Hủy bỏ
+                    </a>
+                    <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 bg-[#0f172a] text-[#4ade80] text-xs font-bold uppercase tracking-wider rounded-lg shadow-sm hover:bg-slate-800 transition-colors">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                        Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-@endsection
+</x-app-layout>

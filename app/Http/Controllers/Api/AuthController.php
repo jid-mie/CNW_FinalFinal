@@ -10,6 +10,7 @@ use App\Http\Requests\Api\Auth\LogoutRequest;
 use App\Http\Requests\Api\Auth\RefreshTokenRequest;
 use App\Http\Requests\Api\Auth\RegisterRequest;
 use App\Http\Requests\Api\Auth\ResetPasswordRequest;
+use App\Http\Requests\Api\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
@@ -30,6 +31,12 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
+            \App\Models\FailedLoginAttempt::create([
+                'email' => $request->input('email'),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'attempted_at' => now(),
+            ]);
             return $this->errorResponse('Invalid email or password', 401);
         }
 
@@ -55,6 +62,10 @@ class AuthController extends Controller
 
         if ($token->expires_at && $token->expires_at->isPast()) {
             return $this->errorResponse('Refresh token has expired', 401);
+        }
+
+        if (isset($token->is_active) && !$token->is_active) {
+            return $this->errorResponse('Refresh token has been temporarily deactivated', 401);
         }
 
         $user = $token->tokenable;
@@ -91,6 +102,23 @@ class AuthController extends Controller
         return $this->successResponse(
             new UserResource($request->user()->load('role')),
             'User profile retrieved successfully'
+        );
+    }
+
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
+    {
+        $user = $request->user();
+        $data = $request->safe()->except(['current_password', 'new_password', 'new_password_confirmation']);
+
+        if ($request->filled('new_password')) {
+            $data['password'] = Hash::make($request->new_password);
+        }
+
+        $user->update($data);
+
+        return $this->successResponse(
+            new UserResource($user->fresh()->load('role')),
+            'Cập nhật thông tin thành công'
         );
     }
 

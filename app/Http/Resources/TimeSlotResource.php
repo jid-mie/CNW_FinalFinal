@@ -12,11 +12,9 @@ class TimeSlotResource extends JsonResource
         return [
             'id' => $this->id,
             'field_id' => $this->field_id,
-            'start_time' => $this->start_time,
-            'end_time' => $this->end_time,
+            'start_time' => $this->start_time?->format('H:i'),
+            'end_time' => $this->end_time?->format('H:i'),
             'is_active' => $this->is_active,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }
