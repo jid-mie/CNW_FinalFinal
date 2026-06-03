@@ -118,7 +118,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name }}</p>
                             <p class="text-[10px] text-slate-400 truncate uppercase tracking-wider font-bold mt-0.5">
-                                {{ auth()->user()->hasRole('admin') ? 'Hệ thống Admin' : 'Chủ sân thể thao' }}
+                                {{ auth()->user()->hasRole('admin') ? 'Hệ thống Admin' : (auth()->user()->hasRole('owner') ? 'Chủ sân thể thao' : 'Khách hàng') }}
                             </p>
                         </div>
                     </div>
