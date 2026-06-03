@@ -61,24 +61,32 @@ class PaymentsController extends Controller
             return $this->errorResponse('Payment already exists for this booking', 409);
         }
 
-        $payment = DB::transaction(function () use ($booking, $request) {
-            $payment = Payment::create([
-                'booking_id' => $booking->id,
-                'amount' => $booking->total_price,
-                'method' => $request->input('method', 'cash'),
-                'status' => 'paid',
-                'transaction_code' => 'PMT-'.Str::upper(Str::random(10)),
-                'paid_at' => now(),
-                'note' => $request->note,
-            ]);
+        try {
+            $payment = DB::transaction(function () use ($booking, $request) {
+                $payment = Payment::create([
+                    'booking_id' => $booking->id,
+                    'amount' => $booking->total_price,
+                    'method' => $request->input('method', 'cash'),
+                    'status' => 'paid',
+                    'transaction_code' => 'PMT-'.Str::upper(Str::random(10)),
+                    'paid_at' => now(),
+                    'note' => $request->note,
+                ]);
 
-            $booking->update([
-                'status' => 'confirmed',
-                'confirmed_at' => now(),
-            ]);
+                $booking->update([
+                    'status' => 'confirmed',
+                    'confirmed_at' => now(),
+                ]);
 
-            return $payment->load('booking.field', 'booking.timeSlot');
-        });
+                return $payment->load('booking.field', 'booking.timeSlot');
+            });
+        } catch (\Illuminate\Database\QueryException $e) {
+            $sqlState = $e->errorInfo[0] ?? null;
+            if ($sqlState === '23000' || $sqlState === '23505' || str_contains($e->getMessage(), 'UNIQUE constraint failed') || str_contains($e->getMessage(), 'Duplicate entry')) {
+                return $this->errorResponse('Payment already exists for this booking', 409);
+            }
+            throw $e;
+        }
 
         return $this->successResponse(
             new PaymentResource($payment),

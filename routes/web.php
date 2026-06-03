@@ -34,11 +34,12 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
     })->name('dashboard');
 });
 
+use App\Http\Controllers\Web\Customer\DashboardController as CustomerDashboardController;
+
 // Customer Routes
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('customer.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/bookings/{booking}/cancel', [CustomerDashboardController::class, 'cancelBooking'])->name('bookings.cancel.web');
 });
 
 Route::middleware('auth')->group(function () {

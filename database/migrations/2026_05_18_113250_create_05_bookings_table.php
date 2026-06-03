@@ -26,11 +26,14 @@ return new class extends Migration
             $table->index(['field_id', 'booking_date']);
         });
 
-        if (DB::getDriverName() === 'pgsql') {
+        if (in_array(DB::getDriverName(), ['pgsql', 'sqlite'])) {
             DB::statement("CREATE UNIQUE INDEX bookings_no_overlap_active_unique ON bookings (field_id, booking_date, time_slot_id) WHERE status IN ('pending', 'confirmed')");
         } else {
             Schema::table('bookings', function (Blueprint $table) {
-                $table->unique(['field_id', 'booking_date', 'time_slot_id']);
+                $table->string('active_booking_key')
+                    ->nullable()
+                    ->virtualAs("CASE WHEN status IN ('pending', 'confirmed') THEN CONCAT(field_id, '-', booking_date, '-', time_slot_id) ELSE NULL END");
+                $table->unique('active_booking_key', 'bookings_no_overlap_active_unique');
             });
         }
     }

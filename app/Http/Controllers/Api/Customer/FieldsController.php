@@ -58,7 +58,7 @@ class FieldsController extends Controller
             ->where('is_active', true)
             ->with([
                 'bookings' => function ($query) use ($bookingDate) {
-                    $query->where('booking_date', $bookingDate)
+                    $query->whereDate('booking_date', $bookingDate)
                         ->whereIn('status', ['pending', 'confirmed']);
                 },
             ])

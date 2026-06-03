@@ -48,7 +48,7 @@ class BookingsController extends Controller
 
         $existingBooking = Booking::where('field_id', $field->id)
             ->where('time_slot_id', $timeSlot->id)
-            ->where('booking_date', $request->booking_date)
+            ->whereDate('booking_date', $request->booking_date)
             ->whereIn('status', ['pending', 'confirmed'])
             ->first();
 
@@ -58,15 +58,23 @@ class BookingsController extends Controller
 
         $totalPrice = $field->price_per_hour;
 
-        $booking = Booking::create([
-            'customer_id' => $request->user()->id,
-            'field_id' => $field->id,
-            'time_slot_id' => $timeSlot->id,
-            'booking_date' => $request->booking_date,
-            'total_price' => $totalPrice,
-            'status' => 'pending',
-            'note' => $request->note,
-        ]);
+        try {
+            $booking = Booking::create([
+                'customer_id' => $request->user()->id,
+                'field_id' => $field->id,
+                'time_slot_id' => $timeSlot->id,
+                'booking_date' => $request->booking_date,
+                'total_price' => $totalPrice,
+                'status' => 'pending',
+                'note' => $request->note,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            $sqlState = $e->errorInfo[0] ?? null;
+            if ($sqlState === '23000' || $sqlState === '23505' || str_contains($e->getMessage(), 'UNIQUE constraint failed') || str_contains($e->getMessage(), 'Duplicate entry')) {
+                return $this->errorResponse('This time slot is already booked', 409);
+            }
+            throw $e;
+        }
 
         return $this->successResponse(
             new BookingResource($booking->load('field', 'timeSlot')),

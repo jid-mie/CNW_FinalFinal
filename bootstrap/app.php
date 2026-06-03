@@ -56,4 +56,25 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 403);
             }
         });
+
+        $exceptions->render(function (\Illuminate\Database\QueryException $e, \Illuminate\Http\Request $request) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                $sqlState = $e->errorInfo[0] ?? null;
+                $isUniqueViolation = ($sqlState === '23000' || $sqlState === '23505' || str_contains($e->getMessage(), 'UNIQUE constraint failed') || str_contains($e->getMessage(), 'Duplicate entry'));
+
+                if ($isUniqueViolation) {
+                    $message = 'Conflict: The resource already exists or there is a database conflict.';
+                    if (str_contains($e->getMessage(), 'bookings')) {
+                        $message = 'This time slot is already booked';
+                    } elseif (str_contains($e->getMessage(), 'payments')) {
+                        $message = 'Payment already exists for this booking';
+                    }
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => $message,
+                    ], 409);
+                }
+            }
+        });
     })->create();
