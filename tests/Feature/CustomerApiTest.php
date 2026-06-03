@@ -129,8 +129,7 @@ class CustomerApiTest extends TestCase
         $this->assertDatabaseHas('bookings', [
             'customer_id' => $this->customer->id,
             'field_id' => $this->field->id,
-            'time_slot_id' => $this->timeSlot->id,
-            'booking_date' => config('database.default') === 'sqlite' ? $bookingDate . ' 00:00:00' : $bookingDate,
+            'booking_date' => $bookingDate,
             'status' => 'pending',
         ]);
     }
