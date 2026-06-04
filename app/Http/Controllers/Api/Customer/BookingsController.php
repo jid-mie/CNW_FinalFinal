@@ -128,7 +128,7 @@ class BookingsController extends Controller
         }
 
         $booking->status = 'cancelled';
-        $booking->cancelled_at = now();
+        $booking->cancelled_at = \Illuminate\Support\Carbon::now();
         $booking->save();
 
         return $this->successResponse(

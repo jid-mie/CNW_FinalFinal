@@ -7,6 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ * App\Models\Booking
+ *
+ * @property int $id
+ * @property int $customer_id
+ * @property int $field_id
+ * @property int $time_slot_id
+ * @property \Illuminate\Support\Carbon $booking_date
+ * @property float $total_price
+ * @property string $status
+ * @property string|null $note
+ * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @property-read \App\Models\User $customer
+ * @property-read \App\Models\Field $field
+ * @property-read \App\Models\TimeSlot $timeSlot
+ * @property-read \App\Models\Payment|null $payment
+ */
 class Booking extends Model
 {
     use HasFactory;

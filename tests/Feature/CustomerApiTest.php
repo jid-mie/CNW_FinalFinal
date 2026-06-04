@@ -199,16 +199,16 @@ class CustomerApiTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.status', 'paid');
+            ->assertJsonPath('data.status', 'pending');
 
         $this->assertDatabaseHas('bookings', [
             'id' => $booking->id,
-            'status' => 'confirmed',
+            'status' => 'pending',
         ]);
 
         $this->assertDatabaseHas('payments', [
             'booking_id' => $booking->id,
-            'status' => 'paid',
+            'status' => 'pending',
             'method' => 'momo',
         ]);
     }

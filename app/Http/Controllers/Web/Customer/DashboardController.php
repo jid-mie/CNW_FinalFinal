@@ -55,9 +55,26 @@ class DashboardController extends Controller
         }
 
         $booking->status = 'cancelled';
-        $booking->cancelled_at = now();
+        $booking->cancelled_at = \Illuminate\Support\Carbon::now();
         $booking->save();
 
         return back()->with('success', 'Hủy đặt sân thành công.');
+    }
+
+    public function getBookingStatus(Booking $booking)
+    {
+        if ($booking->customer_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Tải thông tin thanh toán nếu có
+        $booking->load('payment');
+
+        return response()->json([
+            'id' => $booking->id,
+            'status' => $booking->status,
+            'is_paid' => $booking->payment && $booking->payment->status === 'paid',
+            'payment_method' => $booking->payment ? $booking->payment->method : null,
+        ]);
     }
 }
