@@ -64,13 +64,13 @@
                 <!-- 16:9 Image -->
                 <div class="aspect-video w-full bg-slate-50 relative overflow-hidden">
                     @if($field->image_url)
-                        <img src="{{ $field->image_url }}" alt="{{ $field->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <img src="{{ (str_starts_with($field->image_url, 'http://') || str_starts_with($field->image_url, 'https://')) ? $field->image_url : asset($field->image_url) }}" alt="{{ $field->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-slate-400">
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         </div>
                     @endif
-                    <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase {{ $field->status == 'active' ? 'bg-[#4ade80] text-[#0f172a]' : 'bg-gray-300 text-gray-700' }}">
+                    <span id="field-status-badge-{{ $field->id }}" class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase {{ $field->status == 'active' ? 'bg-[#4ade80] text-[#0f172a]' : 'bg-gray-300 text-gray-700' }}">
                         {{ $field->status == 'active' ? 'Đang mở' : 'Tạm ngưng' }}
                     </span>
                 </div>
@@ -102,9 +102,9 @@
                     <div class="flex items-center gap-2 pt-4 border-t border-[#e2e8f0]">
                         <a href="{{ route('owner.time-slots.index', $field) }}" class="flex-1 text-center py-2 text-xs font-bold uppercase tracking-wider border border-[#e2e8f0] rounded-lg hover:bg-[#0f172a] hover:text-[#4ade80] hover:border-[#0f172a] transition-all duration-200">Giờ chơi</a>
                         <a href="{{ route('owner.fields.edit', $field) }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider border border-[#e2e8f0] rounded-lg hover:bg-slate-50 transition-colors">Sửa</a>
-                        <form action="{{ route('owner.fields.toggle-status', $field) }}" method="POST" class="inline">
+                        <form action="{{ route('owner.fields.toggle-status', $field) }}" method="POST" class="inline" onsubmit="event.preventDefault(); toggleFieldStatus({{ $field->id }}, this.action, '{{ csrf_token() }}');">
                             @csrf
-                            <button class="px-3 py-2 text-xs font-bold uppercase tracking-wider border border-[#e2e8f0] rounded-lg hover:bg-slate-50 transition-colors">
+                            <button id="field-toggle-btn-{{ $field->id }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider border border-[#e2e8f0] rounded-lg hover:bg-slate-50 transition-colors">
                                 {{ $field->status == 'active' ? 'Tạm dừng' : 'Kích hoạt' }}
                             </button>
                         </form>
@@ -122,4 +122,81 @@
             {{ $fields->links() }}
         </div>
     </div>
+
+    <script>
+        function toggleFieldStatus(id, url, token) {
+            const badge = document.getElementById(`field-status-badge-${id}`);
+            const btn = document.getElementById(`field-toggle-btn-${id}`);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    if (data.status === 'active') {
+                        badge.className = 'absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-[#4ade80] text-[#0f172a]';
+                        badge.textContent = 'Đang mở';
+                        btn.textContent = 'Tạm dừng';
+                        showToast('Đã kích hoạt sân hoạt động thành công!', 'success');
+                    } else {
+                        badge.className = 'absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-gray-300 text-gray-700';
+                        badge.textContent = 'Tạm ngưng';
+                        btn.textContent = 'Kích hoạt';
+                        showToast('Đã tạm ngưng hoạt động sân!', 'info');
+                    }
+                } else {
+                    showToast('Cập nhật trạng thái thất bại!', 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Cập nhật trạng thái thất bại!', 'error');
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-3';
+                document.body.appendChild(toastContainer);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = 'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-xs font-bold uppercase tracking-wider text-slate-800 transition-all duration-300 transform translate-y-10 opacity-0';
+            
+            if (type === 'success') {
+                toast.className += ' bg-emerald-50 border-emerald-200 text-emerald-800';
+                toast.innerHTML = `<span>🟢</span> <span>${message}</span>`;
+            } else if (type === 'info') {
+                toast.className += ' bg-amber-50 border-amber-200 text-amber-800';
+                toast.innerHTML = `<span>🟡</span> <span>${message}</span>`;
+            } else {
+                toast.className += ' bg-red-50 border-red-200 text-red-800';
+                toast.innerHTML = `<span>🔴</span> <span>${message}</span>`;
+            }
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    </script>
 </x-app-layout>

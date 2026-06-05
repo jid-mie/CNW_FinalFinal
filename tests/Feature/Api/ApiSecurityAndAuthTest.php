@@ -235,4 +235,81 @@ class ApiSecurityAndAuthTest extends TestCase
             'refresh_token' => $newRefreshToken,
         ])->assertOk();
     }
+
+    /**
+     * Test cannot register as owner via API
+     */
+    public function test_cannot_register_as_owner_via_api(): void
+    {
+        // Try passing role_id
+        $response = $this->postJson('/api/register', [
+            'name' => 'API Owner Attempt',
+            'email' => 'owner_api@example.com',
+            'phone' => '0987654321',
+            'address' => 'Vietnam',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'role_id' => $this->ownerRole->id,
+        ]);
+        $response->assertStatus(403);
+
+        // Try passing role
+        $response = $this->postJson('/api/register', [
+            'name' => 'API Owner Attempt 2',
+            'email' => 'owner_api2@example.com',
+            'phone' => '0987654321',
+            'address' => 'Vietnam',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'role' => 'owner',
+        ]);
+        $response->assertStatus(403);
+    }
+
+    /**
+     * Test admin can create a user (owner) via API
+     */
+    public function test_admin_can_create_user_via_api(): void
+    {
+        $adminUser = User::create([
+            'role_id' => $this->adminRole->id,
+            'name' => 'Admin Account',
+            'email' => 'admin@api.com',
+            'password' => bcrypt('Password123!'),
+        ]);
+
+        Sanctum::actingAs($adminUser, ['access']);
+
+        $response = $this->postJson('/api/admin/users', [
+            'name' => 'Manual Owner User',
+            'email' => 'manualowner@api.com',
+            'password' => 'Password123!',
+            'role_id' => $this->ownerRole->id,
+            'phone' => '0987654321',
+            'address' => 'Vietnam',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('users', [
+            'email' => 'manualowner@api.com',
+            'role_id' => $this->ownerRole->id,
+        ]);
+    }
+
+    /**
+     * Test non-admin cannot create user via API
+     */
+    public function test_non_admin_cannot_create_user_via_api(): void
+    {
+        Sanctum::actingAs($this->customerUser, ['access']);
+
+        $response = $this->postJson('/api/admin/users', [
+            'name' => 'Should Fail User',
+            'email' => 'shouldfail@api.com',
+            'password' => 'Password123!',
+            'role_id' => $this->ownerRole->id,
+        ]);
+
+        $response->assertStatus(403);
+    }
 }

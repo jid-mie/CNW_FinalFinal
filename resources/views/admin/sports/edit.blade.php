@@ -39,7 +39,7 @@
                 <div class="space-y-3">
                     @if ($sport->image_url)
                         <div class="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50">
-                            <img src="{{ $sport->image_url }}" alt="{{ $sport->name }}" class="w-full h-full object-cover">
+                            <img src="{{ (str_starts_with($sport->image_url, 'http://') || str_starts_with($sport->image_url, 'https://')) ? $sport->image_url : asset($sport->image_url) }}" alt="{{ $sport->name }}" class="w-full h-full object-cover">
                         </div>
                     @endif
                     <div class="flex items-center justify-between p-3 border border-dashed border-slate-200 rounded-xl bg-slate-50/50">

@@ -45,9 +45,13 @@
                     
                     $fallbackImage = $sportImages[$cleanSlug] ?? 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600';
                     
-                    $imgSrc = (!empty($cleanUrl) && (str_starts_with($cleanUrl, 'http://') || str_starts_with($cleanUrl, 'https://'))) 
-                        ? $cleanUrl 
-                        : $fallbackImage;
+                    if (!empty($cleanUrl)) {
+                        $imgSrc = (str_starts_with($cleanUrl, 'http://') || str_starts_with($cleanUrl, 'https://')) 
+                            ? $cleanUrl 
+                            : asset($cleanUrl);
+                    } else {
+                        $imgSrc = $fallbackImage;
+                    }
                 @endphp
 
                 <img src="{{ $imgSrc }}" 
@@ -73,8 +77,9 @@
                 </div>
 
                 <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-bold mt-auto">
-                    <span class="text-emerald-500 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Đang hoạt động
+                    <span id="status-badge-{{ $sport->id }}" class="{{ $sport->is_active ? 'text-emerald-500' : 'text-slate-400' }} flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                        <span class="status-dot w-1.5 h-1.5 {{ $sport->is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400' }} rounded-full"></span> 
+                        <span class="status-text">{{ $sport->is_active ? 'Đang hoạt động' : 'Tạm dừng' }}</span>
                     </span>
                     <div class="flex space-x-2">
                         <a href="{{ route('admin.sports.edit', $sport->id) }}" class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-lg border border-transparent hover:border-blue-100 transition flex items-center gap-1">
@@ -101,15 +106,79 @@
 
 <script>
     function toggleSportStatus(id) {
+        const badge = document.getElementById(`status-badge-${id}`);
+        const dot = badge.querySelector('.status-dot');
+        const text = badge.querySelector('.status-text');
+
         fetch(`{{ url('admin/sports') }}/${id}/toggle-status`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
-        }).then(res => {
-            if(!res.ok) alert('Cập nhật trạng thái thất bại!');
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (data.is_active) {
+                    badge.className = 'text-emerald-500 flex items-center gap-1.5 text-[11px] uppercase tracking-wider';
+                    dot.className = 'status-dot w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse';
+                    text.textContent = 'Đang hoạt động';
+                    showToast('Đã kích hoạt bộ môn hoạt động thành công!', 'success');
+                } else {
+                    badge.className = 'text-slate-400 flex items-center gap-1.5 text-[11px] uppercase tracking-wider';
+                    dot.className = 'status-dot w-1.5 h-1.5 bg-slate-400 rounded-full';
+                    text.textContent = 'Tạm dừng';
+                    showToast('Đã tạm ngưng hoạt động bộ môn!', 'info');
+                }
+            } else {
+                showToast('Cập nhật trạng thái thất bại!', 'error');
+            }
+        })
+        .catch(err => {
+            showToast('Cập nhật trạng thái thất bại!', 'error');
         });
+    }
+
+    function showToast(message, type = 'success') {
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.className = 'fixed bottom-5 right-5 z-50 flex flex-col gap-3';
+            document.body.appendChild(toastContainer);
+        }
+        
+        const toast = document.createElement('div');
+        toast.className = 'flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-xs font-bold uppercase tracking-wider text-slate-800 transition-all duration-300 transform translate-y-10 opacity-0';
+        
+        if (type === 'success') {
+            toast.className += ' bg-emerald-50 border-emerald-200 text-emerald-800';
+            toast.innerHTML = `<span>🟢</span> <span>${message}</span>`;
+        } else if (type === 'info') {
+            toast.className += ' bg-amber-50 border-amber-200 text-amber-800';
+            toast.innerHTML = `<span>🟡</span> <span>${message}</span>`;
+        } else {
+            toast.className += ' bg-red-50 border-red-200 text-red-800';
+            toast.innerHTML = `<span>🔴</span> <span>${message}</span>`;
+        }
+        
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
     }
 </script>
 @endsection

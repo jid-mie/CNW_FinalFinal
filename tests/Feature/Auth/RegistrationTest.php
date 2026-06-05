@@ -29,6 +29,34 @@ class RegistrationTest extends TestCase
         $response->assertRedirect(route('login', absolute: false));
     }
 
+    public function test_cannot_register_as_owner_via_web(): void
+    {
+        $ownerRole = \App\Models\Role::firstOrCreate(
+            ['name' => 'owner'],
+            ['display_name' => 'Owner']
+        );
+
+        // Try passing role_id
+        $response = $this->post('/register', [
+            'name' => 'Test Owner',
+            'email' => 'owner@example.com',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'role_id' => $ownerRole->id,
+        ]);
+        $response->assertStatus(403);
+
+        // Try passing role name
+        $response = $this->post('/register', [
+            'name' => 'Test Owner',
+            'email' => 'owner@example.com',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+            'role' => 'owner',
+        ]);
+        $response->assertStatus(403);
+    }
+
 }
 
 

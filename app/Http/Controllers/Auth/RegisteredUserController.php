@@ -31,6 +31,23 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $ownerRole = Role::where('name', 'owner')->first();
+        $isAttemptingOwner = false;
+
+        if ($request->has('role') && strtolower($request->input('role')) === 'owner') {
+            $isAttemptingOwner = true;
+        }
+        if ($request->has('role_name') && strtolower($request->input('role_name')) === 'owner') {
+            $isAttemptingOwner = true;
+        }
+        if ($ownerRole && $request->has('role_id') && (int)$request->input('role_id') === (int)$ownerRole->id) {
+            $isAttemptingOwner = true;
+        }
+
+        if ($isAttemptingOwner) {
+            abort(403, 'Đăng ký tài khoản chủ sân không được phép.');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],

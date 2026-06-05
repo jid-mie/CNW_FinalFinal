@@ -107,10 +107,20 @@ class FieldController extends Controller
         return redirect()->route('owner.fields.index')->with('success', 'Xoá sân thành công');
     }
 
-    public function toggleStatus(Field $field)
+    public function toggleStatus(Request $request, Field $field)
     {
         if ($field->owner_id !== auth()->id()) abort(403);
-        $field->update(['status' => $field->status === 'active' ? 'inactive' : 'active']);
+        $newStatus = $field->status === 'active' ? 'inactive' : 'active';
+        $field->update(['status' => $newStatus]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'status' => $field->status,
+                'message' => 'Cập nhật trạng thái sân thành công!'
+            ]);
+        }
+
         return back()->with('success', 'Đã cập nhật trạng thái sân');
     }
 }

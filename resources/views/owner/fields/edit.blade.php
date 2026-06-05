@@ -61,7 +61,7 @@
                     <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Ảnh sân</label>
                     @if($field->image_url)
                         <div class="mb-3">
-                            <img src="{{ $field->image_url }}" alt="{{ $field->name }}" class="h-28 w-auto rounded-lg object-cover border border-[#e2e8f0] shadow-sm">
+                            <img src="{{ (str_starts_with($field->image_url, 'http://') || str_starts_with($field->image_url, 'https://')) ? $field->image_url : asset($field->image_url) }}" alt="{{ $field->name }}" class="h-28 w-auto rounded-lg object-cover border border-[#e2e8f0] shadow-sm">
                         </div>
                     @endif
                     <div class="border border-dashed border-slate-300 rounded-lg p-4 bg-slate-50 flex items-center justify-between">

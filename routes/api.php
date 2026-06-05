@@ -20,8 +20,8 @@ Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     Route::put('/user', [AuthController::class, 'updateProfile']);
 
     // Admin API Routes
-    Route::middleware('role:admin')->prefix('admin')->group(function () {
-        // Admin specific API endpoints
+    Route::middleware('role:admin')->prefix('admin')->name('api.admin.')->group(function () {
+        Route::post('/users', [\App\Http\Controllers\Api\Admin\UserController::class, 'store'])->name('users.store');
     });
 
     // Owner API Routes

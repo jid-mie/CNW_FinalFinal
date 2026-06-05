@@ -124,6 +124,23 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
+        $ownerRole = Role::where('name', 'owner')->first();
+        $isAttemptingOwner = false;
+
+        if ($request->has('role') && strtolower($request->input('role')) === 'owner') {
+            $isAttemptingOwner = true;
+        }
+        if ($request->has('role_name') && strtolower($request->input('role_name')) === 'owner') {
+            $isAttemptingOwner = true;
+        }
+        if ($ownerRole && $request->has('role_id') && (int)$request->input('role_id') === (int)$ownerRole->id) {
+            $isAttemptingOwner = true;
+        }
+
+        if ($isAttemptingOwner) {
+            return $this->errorResponse('Đăng ký tài khoản chủ sân không được phép.', 403);
+        }
+
         $customerRole = Role::firstOrCreate(
             ['name' => RoleEnum::CUSTOMER->value],
             ['display_name' => 'Customer']
