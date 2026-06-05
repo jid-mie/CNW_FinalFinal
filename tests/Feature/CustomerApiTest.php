@@ -74,7 +74,7 @@ class CustomerApiTest extends TestCase
     {
         Sanctum::actingAs($this->customer, ['access']);
 
-        $response = $this->getJson(route('customer.sports.index'));
+        $response = $this->getJson(route('api.customer.sports.index'));
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -85,7 +85,7 @@ class CustomerApiTest extends TestCase
     {
         Sanctum::actingAs($this->customer, ['access']);
 
-        $response = $this->getJson(route('customer.fields.index'));
+        $response = $this->getJson(route('api.customer.fields.index'));
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -96,7 +96,7 @@ class CustomerApiTest extends TestCase
     {
         Sanctum::actingAs($this->customer, ['access']);
 
-        $response = $this->getJson(route('customer.fields.time-slots', [
+        $response = $this->getJson(route('api.customer.fields.time-slots', [
             'field' => $this->field->id,
             'date' => now()->addDay()->format('Y-m-d'),
         ]));
@@ -115,7 +115,7 @@ class CustomerApiTest extends TestCase
 
         $bookingDate = now()->addDay()->format('Y-m-d');
 
-        $response = $this->postJson(route('customer.bookings.store'), [
+        $response = $this->postJson(route('api.customer.bookings.store'), [
             'field_id' => $this->field->id,
             'time_slot_id' => $this->timeSlot->id,
             'booking_date' => $bookingDate,
@@ -149,7 +149,7 @@ class CustomerApiTest extends TestCase
             'status' => 'confirmed',
         ]);
 
-        $response = $this->postJson(route('customer.bookings.store'), [
+        $response = $this->postJson(route('api.customer.bookings.store'), [
             'field_id' => $this->field->id,
             'time_slot_id' => $this->timeSlot->id,
             'booking_date' => $bookingDate,
@@ -172,7 +172,7 @@ class CustomerApiTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->postJson(route('customer.bookings.cancel', ['booking' => $booking->id]));
+        $response = $this->postJson(route('api.customer.bookings.cancel', ['booking' => $booking->id]));
 
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
@@ -192,7 +192,7 @@ class CustomerApiTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->postJson(route('customer.payments.store', ['booking' => $booking->id]), [
+        $response = $this->postJson(route('api.customer.payments.store', ['booking' => $booking->id]), [
             'method' => 'momo',
             'note' => 'Payment for booking',
         ]);
@@ -230,7 +230,7 @@ class CustomerApiTest extends TestCase
         ]);
 
         // Attempting to book the same slot should now SUCCEED
-        $response = $this->postJson(route('customer.bookings.store'), [
+        $response = $this->postJson(route('api.customer.bookings.store'), [
             'field_id' => $this->field->id,
             'time_slot_id' => $this->timeSlot->id,
             'booking_date' => $bookingDate,
@@ -259,7 +259,7 @@ class CustomerApiTest extends TestCase
         // Mock/Simulate double insert or race condition by triggering duplicate key exception
         // (We bypass Controller check by manually sending a request that will collide at database level)
         // Since the database has a unique constraint, trying to create again should trigger 409
-        $response = $this->postJson(route('customer.bookings.store'), [
+        $response = $this->postJson(route('api.customer.bookings.store'), [
             'field_id' => $this->field->id,
             'time_slot_id' => $this->timeSlot->id,
             'booking_date' => $bookingDate,

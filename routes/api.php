@@ -12,6 +12,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,60');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:3,60');
 Route::post('/refresh-token', [AuthController::class, 'refresh']);
+Route::post('/webhooks/seepay', [\App\Http\Controllers\Api\SeepayWebhookController::class, 'handle']);
 
 Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -69,7 +70,7 @@ Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     });
 
     // Customer API Routes
-    Route::middleware('role:customer')->prefix('customer')->name('customer.')->group(function () {
+    Route::middleware('role:customer')->prefix('customer')->name('api.customer.')->group(function () {
         // Sports endpoints
         Route::get('/sports', [\App\Http\Controllers\Api\Customer\SportsController::class, 'index'])->name('sports.index');
         Route::get('/sports/{sport}', [\App\Http\Controllers\Api\Customer\SportsController::class, 'show'])->name('sports.show');

@@ -63,20 +63,17 @@ class PaymentsController extends Controller
 
         try {
             $payment = DB::transaction(function () use ($booking, $request) {
+                // Tạo payment với status='pending', chờ Seepay webhook update sang 'paid'
                 $payment = Payment::create([
                     'booking_id' => $booking->id,
                     'amount' => $booking->total_price,
-                    'method' => $request->input('method', 'cash'),
-                    'status' => 'paid',
-                    'transaction_code' => 'PMT-'.Str::upper(Str::random(10)),
-                    'paid_at' => now(),
+                    'method' => $request->input('method', 'bank_transfer'),
+                    'status' => 'pending',
                     'note' => $request->note,
                 ]);
 
-                $booking->update([
-                    'status' => 'confirmed',
-                    'confirmed_at' => now(),
-                ]);
+                // Booking vẫn giữ 'pending', chờ webhook Seepay confirm
+                // (Không gọi $booking->update() ở đây)
 
                 return $payment->load('booking.field', 'booking.timeSlot');
             });
@@ -90,7 +87,7 @@ class PaymentsController extends Controller
 
         return $this->successResponse(
             new PaymentResource($payment),
-            'Payment created successfully',
+            'Payment request created. Please transfer to bank account with message: PLAY' . $booking->id,
             201
         );
     }

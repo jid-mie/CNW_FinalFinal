@@ -125,11 +125,22 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
 });
 
 use App\Http\Controllers\Web\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Web\Customer\BookingController as CustomerBookingController;
 
 // 5. Phân hệ của KHÁCH HÀNG (Customer Routes)
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
     Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
     Route::post('/bookings/{booking}/cancel', [CustomerDashboardController::class, 'cancelBooking'])->name('bookings.cancel.web');
+    Route::get('/bookings/{booking}/status', [CustomerDashboardController::class, 'getBookingStatus'])->name('bookings.status');
+
+    // Booking management pages
+    Route::get('/bookings/create', [CustomerBookingController::class, 'create'])->name('bookings.create');
+    Route::post('/bookings', [CustomerBookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings', [CustomerBookingController::class, 'index'])->name('bookings.index');
+
+    // AJAX endpoints for booking form
+    Route::get('/booking/sport/{sport}/fields', [CustomerBookingController::class, 'getFieldsBySport'])->name('booking.fields');
+    Route::get('/booking/field/{field}/slots', [CustomerBookingController::class, 'getAvailableSlots'])->name('booking.slots');
 });
 
 

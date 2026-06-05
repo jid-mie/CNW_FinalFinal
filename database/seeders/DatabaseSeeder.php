@@ -73,6 +73,7 @@ class DatabaseSeeder extends Seeder
                 'name' => $name,
                 'slug' => $slug,
                 'description' => $desc,
+                'image_url' => 'uploads/sports/' . $slug . '.png',
                 'is_active' => true,
             ]);
         }
@@ -96,8 +97,8 @@ class DatabaseSeeder extends Seeder
 
             foreach ($fieldNames[$oi] as $fi => $fname) {
                 $sport = $sportPool[$fi % count($sportPool)];
-                // Nâng tầm giá sân lên hàng triệu để test hiển thị định dạng doanh thu xịn mịn
-                $prices = [600000, 800000, 1000000, 1200000, 1500000];
+                // Chỉnh giá sân xuống 100k và 200k để tiện test giao dịch
+                $prices = [100000, 200000];
                 $price = $prices[($fi + $oi) % count($prices)];
                 $fields[] = Field::create([
                     'owner_id' => $owner->id,
@@ -109,6 +110,7 @@ class DatabaseSeeder extends Seeder
                     'price_per_hour' => $price,
                     'open_time' => '06:00',
                     'close_time' => '22:00',
+                    'image_url' => 'uploads/fields/san-' . $sport->slug . '.png',
                     'status' => ($fi == 2) ? 'maintenance' : 'active', // Tạo sẵn một vài sân bảo trì
                 ]);
             }

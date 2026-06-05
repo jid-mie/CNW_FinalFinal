@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'seepay' => [
+        'api_key' => env('SEEPAY_API_KEY'),
+        'webhook_token' => env('SEEPAY_WEBHOOK_TOKEN'),
+        'bank_id' => env('SEEPAY_BANK_ID', 'vietinbank'),
+        'bank_account' => env('SEEPAY_BANK_ACCOUNT', '113000045678'),
+        'account_name' => env('SEEPAY_ACCOUNT_NAME', 'NGUYEN VAN A'),
+    ],
+
 ];
