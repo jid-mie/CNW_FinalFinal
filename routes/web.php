@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 // 1. Điều hướng trang chủ mặc định khi vừa vào web
 Route::get('/', function () {
-    return redirect()->route('dashboard');
+    return view('welcome');
 });
 
 // 2. Bộ điều hướng Dashboard tổng sau khi đăng nhập theo từng vai trò (Role)
