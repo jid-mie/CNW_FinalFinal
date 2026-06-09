@@ -45,15 +45,8 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            \App\Models\FailedLoginAttempt::create([
-                'email' => $this->input('email'),
-                'ip_address' => $this->ip(),
-                'user_agent' => $this->userAgent(),
-                'attempted_at' => now(),
-            ]);
-
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Thông tin đăng nhập không đúng.',
             ]);
         }
 
@@ -76,10 +69,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'email' => 'Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau '.$seconds.' giây.',
         ]);
     }
 
