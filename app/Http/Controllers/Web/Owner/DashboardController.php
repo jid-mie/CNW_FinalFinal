@@ -49,7 +49,7 @@ class DashboardController extends Controller
 
         $pendingBookings = Booking::whereIn('field_id', $fieldIds)
             ->where('status', 'pending')
-            ->with(['customer', 'field', 'timeSlot'])
+            ->with(['customer', 'field', 'timeSlot', 'payment'])
             ->latest()
             ->take(5)
             ->get();

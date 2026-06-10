@@ -113,16 +113,29 @@
                                     @else Chờ duyệt
                                     @endif
                                 </span>
+                                <div class="mt-1">
+                                    @if($b->payment?->status == 'paid')
+                                        <span class="text-[9px] font-bold text-green-600 uppercase tracking-wider bg-green-50 px-1.5 py-0.5 rounded border border-green-200">Đã TT</span>
+                                    @else
+                                        <span class="text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-50 px-1.5 py-0.5 rounded border border-red-200">Chưa TT</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-5 py-4 text-right">
                                 <div class="flex items-center gap-1.5 justify-end">
                                     @if($b->status == 'pending')
-                                        <form action="{{ route('owner.bookings.confirm', $b) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors shadow-sm" title="Duyệt đặt sân">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                        @if($b->payment?->status == 'paid')
+                                            <form action="{{ route('owner.bookings.confirm', $b) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors shadow-sm" title="Duyệt đặt sân">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <button class="p-1.5 bg-slate-100 text-slate-400 rounded-lg cursor-not-allowed border border-slate-200" title="Chưa thanh toán (Không thể duyệt)" disabled>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                             </button>
-                                        </form>
+                                        @endif
                                         <form action="{{ route('owner.bookings.cancel', $b) }}" method="POST" class="inline" onsubmit="return confirm('Huỷ đặt lịch này?')">
                                             @csrf
                                             <button class="p-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors border border-red-200" title="Từ chối/Huỷ">
