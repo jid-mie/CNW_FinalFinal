@@ -14,6 +14,25 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middle
 Route::post('/refresh-token', [AuthController::class, 'refresh']);
 Route::post('/webhooks/seepay', [\App\Http\Controllers\Api\SeepayWebhookController::class, 'handle']);
 
+// ✅ TEST WEBHOOK (development only) - Simulate Seepay webhook to confirm payment
+Route::post('/webhooks/seepay/test', function (\Illuminate\Http\Request $request) {
+    if (!app()->isLocal()) {
+        return response()->json(['error' => 'Not available in production'], 403);
+    }
+    
+    $bookingId = $request->input('booking_id') ?? 1;
+    $amount = $request->input('amount') ?? 100000;
+    
+    return app(\App\Http\Controllers\Api\SeepayWebhookController::class)->handle(
+        new \Illuminate\Http\Request([
+            'transactionContent' => "PLAY{$bookingId}",
+            'transferAmount' => $amount,
+            'referenceCode' => 'TEST-' . time(),
+            'token' => config('services.seepay.webhook_token'),
+        ])
+    );
+});
+
 Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
