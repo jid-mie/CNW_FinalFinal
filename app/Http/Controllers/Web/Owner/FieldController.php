@@ -56,7 +56,7 @@ class FieldController extends Controller
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('fields', 'public');
-            $data['image_url'] = Storage::disk('public')->url($data['image']);
+            $data['image_url'] = 'storage/' . $data['image'];
         }
 
         auth()->user()->fields()->create($data);
@@ -91,7 +91,7 @@ class FieldController extends Controller
         if ($request->hasFile('image')) {
             if ($field->image) Storage::disk('public')->delete($field->image);
             $data['image'] = $request->file('image')->store('fields', 'public');
-            $data['image_url'] = Storage::disk('public')->url($data['image']);
+            $data['image_url'] = 'storage/' . $data['image'];
         }
 
         $field->update($data);

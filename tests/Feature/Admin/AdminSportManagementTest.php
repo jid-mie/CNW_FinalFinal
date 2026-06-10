@@ -65,8 +65,11 @@ class AdminSportManagementTest extends TestCase
         $this->assertNotNull($sport->image_url);
 
         // Verify that the file was stored on the disk
-        $parsedUrl = parse_url($sport->image_url, PHP_URL_PATH);
-        $path = ltrim(str_replace('/storage/', '', $parsedUrl), '/');
+        $path = $sport->image_url;
+        if (str_contains($path, 'storage/')) {
+            $path = substr($path, strpos($path, 'storage/') + 8);
+        }
+        $path = ltrim($path, '/');
         Storage::disk('public')->assertExists($path);
     }
 
@@ -97,8 +100,11 @@ class AdminSportManagementTest extends TestCase
         $this->assertNotNull($sport);
         $initialImageUrl = $sport->image_url;
         
-        $parsedOldUrl = parse_url($initialImageUrl, PHP_URL_PATH);
-        $oldPath = ltrim(str_replace('/storage/', '', $parsedOldUrl), '/');
+        $oldPath = $initialImageUrl;
+        if (str_contains($oldPath, 'storage/')) {
+            $oldPath = substr($oldPath, strpos($oldPath, 'storage/') + 8);
+        }
+        $oldPath = ltrim($oldPath, '/');
         Storage::disk('public')->assertExists($oldPath);
 
         // Update the sport with a new image
@@ -126,8 +132,11 @@ class AdminSportManagementTest extends TestCase
         $this->assertNotEquals($initialImageUrl, $sport->image_url);
 
         // Verify that the new file was stored on the disk
-        $parsedNewUrl = parse_url($sport->image_url, PHP_URL_PATH);
-        $newPath = ltrim(str_replace('/storage/', '', $parsedNewUrl), '/');
+        $newPath = $sport->image_url;
+        if (str_contains($newPath, 'storage/')) {
+            $newPath = substr($newPath, strpos($newPath, 'storage/') + 8);
+        }
+        $newPath = ltrim($newPath, '/');
         Storage::disk('public')->assertExists($newPath);
 
         // Verify that the old file was deleted from the disk

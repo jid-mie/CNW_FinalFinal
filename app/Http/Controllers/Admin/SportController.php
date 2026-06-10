@@ -41,7 +41,7 @@ class SportController extends Controller
         $imageUrl = $request->image_url;
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('sports', 'public');
-            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+            $imageUrl = 'storage/' . $path;
         }
 
         Sport::create([
@@ -82,14 +82,22 @@ class SportController extends Controller
         if ($request->hasFile('image_file')) {
             // Delete old file if it was uploaded to storage
             if ($sport->image_url) {
-                $parsedOldUrl = parse_url($sport->image_url, PHP_URL_PATH);
-                $oldPath = ltrim(str_replace('/storage/', '', $parsedOldUrl), '/');
+                $pathOnly = $sport->image_url;
+                if (str_starts_with($sport->image_url, 'http://') || str_starts_with($sport->image_url, 'https://')) {
+                    $pathOnly = parse_url($sport->image_url, PHP_URL_PATH);
+                }
+                $oldPath = $pathOnly;
+                if (str_contains($oldPath, 'storage/')) {
+                    $oldPath = substr($oldPath, strpos($oldPath, 'storage/') + 8);
+                }
+                $oldPath = ltrim($oldPath, '/');
+
                 if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
                     \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
                 }
             }
             $path = $request->file('image_file')->store('sports', 'public');
-            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+            $imageUrl = 'storage/' . $path;
         }
 
         $sport->update([
