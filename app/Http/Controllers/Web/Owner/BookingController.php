@@ -40,7 +40,7 @@ class BookingController extends Controller
     {
         $bookings = Booking::whereHas('field', fn($q) => $q->where('owner_id', auth()->id()))
             ->where('status', 'pending')
-            ->with(['customer', 'field', 'timeSlot'])
+            ->with(['customer', 'field', 'timeSlot', 'payment'])
             ->latest()
             ->paginate(15);
 
@@ -73,6 +73,11 @@ class BookingController extends Controller
     {
         if ($booking->field->owner_id !== auth()->id()) abort(403);
         if ($booking->status !== 'pending') return back()->with('error', 'Booking không ở trạng thái chờ duyệt');
+
+        // Bắt buộc thanh toán thành công mới được duyệt
+        if (!$booking->payment || $booking->payment->status !== 'paid') {
+            return back()->with('error', 'Không thể duyệt khi chưa thanh toán thành công!');
+        }
         
         $booking->update(['status' => 'confirmed', 'confirmed_at' => now()]);
 

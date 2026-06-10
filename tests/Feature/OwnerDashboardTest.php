@@ -135,6 +135,13 @@ class OwnerDashboardTest extends TestCase
             'status' => 'pending',
         ]);
 
+        Payment::create([
+            'booking_id' => $booking->id,
+            'amount' => 100000,
+            'method' => 'bank_transfer',
+            'status' => 'paid',
+        ]);
+
         $response = $this->actingAs($this->owner)
             ->post(route('owner.bookings.confirm', $booking->id));
 
@@ -143,6 +150,27 @@ class OwnerDashboardTest extends TestCase
 
         $this->assertEquals('confirmed', $booking->fresh()->status);
         $this->assertNotNull($booking->fresh()->confirmed_at);
+    }
+
+    public function test_owner_cannot_confirm_unpaid_pending_booking()
+    {
+        $booking = Booking::create([
+            'customer_id' => $this->customer->id,
+            'field_id' => $this->field->id,
+            'time_slot_id' => $this->timeSlot->id,
+            'booking_date' => today(),
+            'total_price' => 100000,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($this->owner)
+            ->post(route('owner.bookings.confirm', $booking->id));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'Không thể duyệt khi chưa thanh toán thành công!');
+
+        $this->assertEquals('pending', $booking->fresh()->status);
+        $this->assertNull($booking->fresh()->confirmed_at);
     }
 
     public function test_owner_can_cancel_pending_booking()

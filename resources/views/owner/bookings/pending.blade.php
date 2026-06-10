@@ -39,15 +39,30 @@
                             <td class="px-5 py-4 font-semibold text-[#0f172a]">{{ $b->field?->name }}</td>
                             <td class="px-5 py-4 text-[#45464d]">{{ $b->booking_date->format('d/m/Y') }}</td>
                             <td class="px-5 py-4 text-[#0f172a] font-medium">{{ $b->timeSlot?->start_time?->format('H:i') }} - {{ $b->timeSlot?->end_time?->format('H:i') }}</td>
-                            <td class="px-5 py-4 text-right font-bold text-[#0f172a]">{{ number_format($b->total_price, 0, ',', '.') }}đ</td>
+                            <td class="px-5 py-4 text-right">
+                                <div class="font-bold text-[#0f172a]">{{ number_format($b->total_price, 0, ',', '.') }}đ</div>
+                                <div class="mt-1">
+                                    @if($b->payment?->status == 'paid')
+                                        <span class="text-[9px] font-bold text-green-600 uppercase tracking-wider bg-green-50 px-1.5 py-0.5 rounded border border-green-200">Đã TT</span>
+                                    @else
+                                        <span class="text-[9px] font-bold text-red-500 uppercase tracking-wider bg-red-50 px-1.5 py-0.5 rounded border border-red-200">Chưa TT</span>
+                                    @endif
+                                </div>
+                            </td>
                             <td class="px-5 py-4 text-right">
                                 <div class="flex items-center gap-2 justify-end">
-                                    <form action="{{ route('owner.bookings.confirm', $b) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button class="px-3.5 py-2 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">
-                                            Duyệt đặt
+                                    @if($b->payment?->status == 'paid')
+                                        <form action="{{ route('owner.bookings.confirm', $b) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button class="px-3.5 py-2 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">
+                                                Duyệt đặt
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button class="px-3.5 py-2 bg-slate-100 text-slate-400 border border-slate-200 rounded-lg font-bold text-xs uppercase tracking-wider cursor-not-allowed" title="Chưa thanh toán (Không thể duyệt)" disabled>
+                                            Chưa TT
                                         </button>
-                                    </form>
+                                    @endif
                                     <form action="{{ route('owner.bookings.cancel', $b) }}" method="POST" class="inline" onsubmit="var r=confirm('Từ chối yêu cầu đặt sân này?'); if(r){var n=prompt('Lý do từ chối (không bắt buộc):'); this.querySelector('input[name=note]').value=n||'';} return r;">
                                         @csrf
                                         <input type="hidden" name="note" value="">

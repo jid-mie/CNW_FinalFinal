@@ -92,16 +92,29 @@
                                         {{ strtoupper(substr($booking->customer?->name ?? 'KH', 0, 2)) }}
                                     </span>
                                     <div>
-                                        <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
+                                        <div class="flex items-center gap-1.5">
+                                            <h4 class="font-bold text-sm text-[#0f172a]">{{ $booking->customer?->name ?? 'N/A' }}</h4>
+                                            @if($booking->payment?->status == 'paid')
+                                                <span class="text-[9px] font-bold text-green-600 bg-green-50 px-1 py-0.2 rounded border border-green-200">Đã TT</span>
+                                            @else
+                                                <span class="text-[9px] font-bold text-red-500 bg-red-50 px-1 py-0.2 rounded border border-red-200">Chưa TT</span>
+                                            @endif
+                                        </div>
                                         <p class="text-xs text-[#45464d] mt-0.5">{{ $booking->field?->name }} | {{ $booking->timeSlot?->start_time?->format('H:i') }} - {{ $booking->timeSlot?->end_time?->format('H:i') }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-[#45464d]">{{ $booking->booking_date->format('d/m') }}</span>
-                                    <form action="{{ route('owner.bookings.confirm', $booking) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></button>
-                                    </form>
+                                    @if($booking->payment?->status == 'paid')
+                                        <form action="{{ route('owner.bookings.confirm', $booking) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button class="p-1.5 bg-[#4ade80] text-[#0f172a] rounded-lg hover:bg-green-400 transition-colors" title="Duyệt đặt sân"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg></button>
+                                        </form>
+                                    @else
+                                        <button class="p-1.5 bg-slate-100 text-slate-400 border border-slate-200 rounded-lg cursor-not-allowed" title="Chưa thanh toán (Không thể duyệt)" disabled>
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                        </button>
+                                    @endif
                                     <form action="{{ route('owner.bookings.cancel', $booking) }}" method="POST" class="inline" onsubmit="return confirm('Từ chối đặt lịch này?')">
                                         @csrf
                                         <button class="p-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg></button>
