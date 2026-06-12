@@ -172,6 +172,8 @@ class ApiSecurityAndAuthTest extends TestCase
      */
     public function test_api_auth_workflow(): void
     {
+        \Illuminate\Support\Facades\Cache::put('otp_newuser@api.com', '123456', 300);
+
         // 1. Register a new user
         $registerResponse = $this->postJson('/api/register', [
             'name' => 'API New User',
@@ -180,6 +182,7 @@ class ApiSecurityAndAuthTest extends TestCase
             'address' => 'Vietnam',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
+            'otp' => '123456',
         ]);
 
         $registerResponse->assertStatus(201);
@@ -250,6 +253,7 @@ class ApiSecurityAndAuthTest extends TestCase
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'role_id' => $this->ownerRole->id,
+            'otp' => '123456',
         ]);
         $response->assertStatus(403);
 
@@ -262,6 +266,7 @@ class ApiSecurityAndAuthTest extends TestCase
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'role' => 'owner',
+            'otp' => '123456',
         ]);
         $response->assertStatus(403);
     }

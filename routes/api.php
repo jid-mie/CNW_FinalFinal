@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\Owner\TimeSlotController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,60');
+Route::post('/register/send-otp', [AuthController::class, 'sendOtp'])->middleware('throttle:3,60');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,60');
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,60');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:3,60');

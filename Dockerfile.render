@@ -1,0 +1,26 @@
+FROM serversideup/php:8.3-fpm-nginx-alpine
+
+# Switch to root to install Node.js and build tools
+USER root
+
+RUN apk add --no-cache nodejs npm postgresql-client
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application files and set ownership
+COPY --chown=webuser:webgroup . .
+
+# Install dependencies and build production assets
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts \
+    && composer install --no-interaction --no-dev --optimize-autoloader \
+    && npm ci \
+    && npm run build \
+    && chown -R webuser:webgroup /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy entrypoint initialization scripts
+COPY --chown=webuser:webgroup .docker/php/render-init.sh /entrypoint.d/99-laravel-init.sh
+RUN chmod +x /entrypoint.d/99-laravel-init.sh
+
+# Switch back to non-root user
+USER webuser

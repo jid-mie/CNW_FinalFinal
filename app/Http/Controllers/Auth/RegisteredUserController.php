@@ -9,7 +9,10 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendOtpMail;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -50,9 +53,19 @@ class RegisteredUserController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', app()->runningUnitTests() ? 'email' : 'email:rfc,dns', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'otp' => ['required', 'string', 'size:6'],
         ]);
+
+        $cachedOtp = Cache::get('otp_' . $request->email);
+        if (!$cachedOtp || $cachedOtp !== $request->otp) {
+            throw ValidationException::withMessages([
+                'otp' => ['Mã OTP không chính xác hoặc đã hết hạn.'],
+            ]);
+        }
+
+        Cache::forget('otp_' . $request->email);
 
         $customerRole = Role::firstOrCreate(
             ['name' => 'customer'],
@@ -71,5 +84,25 @@ class RegisteredUserController extends Controller
         // Auth::login($user);
 
         return redirect(route('login', absolute: false));
+    }
+
+    /**
+     * Send OTP for web registration.
+     */
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'lowercase', app()->runningUnitTests() ? 'email' : 'email:rfc,dns', 'max:255', 'unique:'.User::class],
+        ]);
+
+        $otpCode = app()->runningUnitTests() ? '123456' : (string)rand(100000, 999999);
+        Cache::put('otp_' . $request->email, $otpCode, now()->addMinutes(5));
+
+        Mail::to($request->email)->send(new SendOtpMail($otpCode));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mã OTP đã được gửi thành công đến email của bạn.'
+        ]);
     }
 }

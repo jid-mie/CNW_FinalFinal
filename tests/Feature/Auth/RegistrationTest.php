@@ -18,11 +18,14 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        \Illuminate\Support\Facades\Cache::put('otp_test@example.com', '123456', 300);
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
+            'otp' => '123456',
         ]);
 
         $this->assertGuest();
