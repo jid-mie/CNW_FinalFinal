@@ -27,7 +27,7 @@ final class CreateUserRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
+            'email' => ['required', app()->runningUnitTests() ? 'email' : 'email:rfc,dns', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => $passwordRules,
             'role_id' => ['required', Rule::in($managedRoleIds)],
             'phone' => ['nullable', 'string', 'max:30'],

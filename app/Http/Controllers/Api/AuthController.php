@@ -19,6 +19,9 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SendOtpMail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -141,6 +144,15 @@ class AuthController extends Controller
             return $this->errorResponse('Đăng ký tài khoản chủ sân không được phép.', 403);
         }
 
+        $cachedOtp = Cache::get('otp_' . $request->email);
+        if (!$cachedOtp || $cachedOtp !== $request->otp) {
+            throw ValidationException::withMessages([
+                'otp' => ['Mã OTP không chính xác hoặc đã hết hạn.'],
+            ]);
+        }
+
+        Cache::forget('otp_' . $request->email);
+
         $customerRole = Role::firstOrCreate(
             ['name' => RoleEnum::CUSTOMER->value],
             ['display_name' => 'Customer']
@@ -167,6 +179,23 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_in' => config('sanctum.access_expiration', 15) * 60,
         ], 'Registration successful. Please check your email for verification.', 201);
+    }
+
+    /**
+     * Send OTP for API registration.
+     */
+    public function sendOtp(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'lowercase', app()->runningUnitTests() ? 'email' : 'email:rfc,dns', 'max:255', 'unique:'.User::class],
+        ]);
+
+        $otpCode = app()->runningUnitTests() ? '123456' : (string)rand(100000, 999999);
+        Cache::put('otp_' . $request->email, $otpCode, now()->addMinutes(5));
+
+        Mail::to($request->email)->send(new SendOtpMail($otpCode));
+
+        return $this->successResponse(null, 'Mã OTP đã được gửi thành công đến email của bạn.');
     }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse

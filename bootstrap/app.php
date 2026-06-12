@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'ability' => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
         ]);
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e, \Illuminate\Http\Request $request) {
