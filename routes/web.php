@@ -163,14 +163,5 @@ Route::prefix('users')->name('users.')->group(function () {
 });
 
 
-// TEMP: Setup DB (remove after first run)
-use Illuminate\Support\Facades\Artisan;
-Route::get('/run-setup', function () {
-    $key = request()->query('token');
-    if ($key !== 'hiep3105') abort(403);
-    Artisan::call('migrate:fresh --seed --force');
-    return '<pre>'.Artisan::output().'</pre>';
-});
-
 // Nạp hệ thống Đăng ký / Đăng nhập mặc định của Laravel Breeze
 require __DIR__.'/auth.php';
