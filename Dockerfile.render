@@ -9,18 +9,18 @@ RUN apk add --no-cache nodejs npm postgresql-client
 WORKDIR /var/www/html
 
 # Copy application files and set ownership
-COPY --chown=webuser:webgroup . .
+COPY --chown=www-data:www-data . .
 
 # Install dependencies and build production assets
 RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts \
     && composer install --no-interaction --no-dev --optimize-autoloader \
     && npm ci \
     && npm run build \
-    && chown -R webuser:webgroup /var/www/html/storage /var/www/html/bootstrap/cache
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy entrypoint initialization scripts
-COPY --chown=webuser:webgroup .docker/php/render-init.sh /entrypoint.d/99-laravel-init.sh
+COPY --chown=www-data:www-data .docker/php/render-init.sh /entrypoint.d/99-laravel-init.sh
 RUN chmod +x /entrypoint.d/99-laravel-init.sh
 
 # Switch back to non-root user
-USER webuser
+USER www-data
