@@ -44,9 +44,9 @@ services:
       - key: MAIL_PORT
         value: "465"
       - key: MAIL_USERNAME
-        value: hiepnguyendev315@gmail.com
+        sync: false
       - key: MAIL_PASSWORD
-        value: xlptlpngyrfrdpzd
+        sync: false
       - key: MAIL_ENCRYPTION
         value: ssl
       - key: MAIL_FROM_ADDRESS
