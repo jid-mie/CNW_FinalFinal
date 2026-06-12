@@ -66,10 +66,7 @@
             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Phương thức ví</label>
             <select name="method" class="w-full p-2 border border-slate-200 rounded-xl text-xs bg-white text-slate-600 font-semibold focus:outline-none">
                 <option value="">Tất cả phương thức</option>
-                <option value="momo" {{ request('method') == 'momo' ? 'selected' : '' }}>📱 Ví MoMo</option>
-                <option value="vnpay" {{ request('method') == 'vnpay' ? 'selected' : '' }}>💳 Thẻ VNPay</option>
-                <option value="cash" {{ request('method') == 'cash' ? 'selected' : '' }}>💵 Tiền mặt tại sân</option>
-                <option value="bank_transfer" {{ request('method') == 'bank_transfer' ? 'selected' : '' }}>🏦 Chuyển khoản nhanh</option>
+                <option value="bank_transfer" {{ request('method') == 'bank_transfer' ? 'selected' : '' }}>🏦 Chuyển khoản ngân hàng</option>
             </select>
         </div>
         <div>
@@ -125,10 +122,7 @@
                     
                     <td class="p-4 font-black text-slate-800 font-mono">{{ number_format($payment->amount) }}đ</td>
                     <td class="p-4 text-slate-500 font-semibold">
-                        @if(Str::contains(Str::lower($payment->method ?? ''), 'momo')) 📱 MoMo
-                        @elseif(Str::contains(Str::lower($payment->method ?? ''), 'vnpay')) 💳 VNPay
-                        @elseif(Str::contains(Str::lower($payment->method ?? ''), 'cash') || Str::contains(Str::lower($payment->method ?? ''), 'tiền mặt')) 💵 Tiền mặt
-                        @else 🏦 Chuyển khoản @endif
+                        🏦 Chuyển khoản ngân hàng
                     </td>
                     
                     <td class="p-4">

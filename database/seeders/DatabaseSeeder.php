@@ -161,50 +161,50 @@ class DatabaseSeeder extends Seeder
         $scenarios = [
             // Ngày 20/05/2026
             ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
-            ['date' => '2026-05-20', 'status' => 'pending',   'method' => 'cash',          'p_status' => 'pending'],
-            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-20', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
+            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 21/05/2026
-            ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
-            ['date' => '2026-05-21', 'status' => 'cancelled', 'method' => 'momo',          'p_status' => 'refunded'],
+            ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-21', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
             ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 22/05/2026
-            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
-            ['date' => '2026-05-22', 'status' => 'pending',   'method' => 'momo',          'p_status' => 'pending'],
-            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-22', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
+            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 23/05/2026
             ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-23', 'status' => 'pending',   'method' => 'vnpay',         'p_status' => 'pending'],
-            ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-23', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
+            ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 24/05/2026
-            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             ['date' => '2026-05-24', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
-            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
+            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 25/05/2026
-            ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
-            ['date' => '2026-05-25', 'status' => 'pending',   'method' => 'momo',          'p_status' => 'pending'],
+            ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-25', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
             ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 26/05/2026
-            ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
             ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-26', 'status' => 'pending',   'method' => 'vnpay',         'p_status' => 'pending'],
+            ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-26', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
             // Ngày 27/05/2026
-            ['date' => '2026-05-27', 'status' => 'pending',   'method' => 'cash',          'p_status' => 'pending'],
-            ['date' => '2026-05-27', 'status' => 'cancelled', 'method' => 'vnpay',         'p_status' => 'refunded'],
-            ['date' => '2026-05-27', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-27', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
+            ['date' => '2026-05-27', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
+            ['date' => '2026-05-27', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 28/05/2026 (Mốc hôm nay)
-            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
-            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             ['date' => '2026-05-28', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
             // Ngày 29/05/2026
             ['date' => '2026-05-29', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'cash',          'p_status' => 'paid'],
-            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'momo',          'p_status' => 'paid'],
+            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
+            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
             // Ngày 30/05/2026
-            ['date' => '2026-05-30', 'status' => 'cancelled', 'method' => 'momo',          'p_status' => 'refunded'],
-            ['date' => '2026-05-30', 'status' => 'pending',   'method' => 'vnpay',         'p_status' => 'pending'],
+            ['date' => '2026-05-30', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
+            ['date' => '2026-05-30', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
             ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'vnpay',         'p_status' => 'paid'],
+            ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
         ];
 
         foreach ($scenarios as $index => $scene) {

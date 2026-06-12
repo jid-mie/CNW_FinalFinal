@@ -63,7 +63,7 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Hình thức thanh toán</label>
-                    <input type="text" value="@if(Str::contains(Str::lower($payment->method ?? ''), 'momo'))📱 Ví điện tử MoMo @elseif(Str::contains(Str::lower($payment->method ?? ''), 'vnpay'))💳 Cổng VNPay @elseif(Str::contains(Str::lower($payment->method ?? ''), 'cash'))💵 Tiền mặt tại sân @else 🏦 Chuyển khoản ngân hàng @endif" readonly class="w-full p-3 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:outline-none">
+                    <input type="text" value="🏦 Chuyển khoản ngân hàng" readonly class="w-full p-3 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 focus:outline-none">
                 </div>
             </div>
 
