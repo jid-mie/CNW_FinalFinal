@@ -48,7 +48,7 @@
             }
         </style>
     </head>
-    <body class="text-gray-100 antialiased min-h-screen relative overflow-x-hidden selection:bg-[#39FF14] selection:text-black">
+    <body x-data="{ showPartnerModal: false }" class="text-gray-100 antialiased min-h-screen relative overflow-x-hidden selection:bg-[#39FF14] selection:text-black">
         
         <!-- Background elements -->
         <div class="absolute inset-0 grid-pattern pointer-events-none z-0"></div>
@@ -74,7 +74,7 @@
                     <a href="#demo" class="text-gray-300 hover:text-[#39FF14] transition-colors" id="nav-link-demo">Đặt Sân Thử</a>
                     <a href="#features" class="text-gray-300 hover:text-[#39FF14] transition-colors" id="nav-link-features">Tính Năng</a>
                     <a href="#testimonials" class="text-gray-300 hover:text-[#39FF14] transition-colors" id="nav-link-testimonials">Ý Kiến Khách Hàng</a>
-                    <a href="#cta" class="text-gray-300 hover:text-[#FF5722] transition-colors" id="nav-link-register-court">Đăng Ký Chủ Sân</a>
+                    <a href="#" @click.prevent="showPartnerModal = true" class="text-gray-300 hover:text-[#FF5722] transition-colors" id="nav-link-register-court">Đăng Ký Chủ Sân</a>
                 </nav>
 
                 <!-- Auth action buttons -->
@@ -137,11 +137,11 @@
                        id="btn-hero-find-now">
                         Tìm Sân & Đặt Ngay
                     </a>
-                    <a href="{{ route('register') }}?role=owner" 
-                       class="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-[#FF5722] text-[#FF5722] font-heading font-extrabold uppercase tracking-wider text-lg rounded-[2px] transition-all hover:bg-[#FF5722] hover:text-white hover:scale-[1.02] text-center"
+                    <button @click="showPartnerModal = true" 
+                       class="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-[#FF5722] text-[#FF5722] font-heading font-extrabold uppercase tracking-wider text-lg rounded-[2px] transition-all hover:bg-[#FF5722] hover:text-white hover:scale-[1.02] text-center cursor-pointer"
                        id="btn-hero-owner-signup">
                         Trở Thành Đối Tác Sân
-                    </a>
+                    </button>
                 </div>
 
                 <!-- Instant stats count -->
@@ -747,6 +747,74 @@
 
             </div>
         </footer>
+
+        <!-- PARTNER REGISTRATION INFO MODAL -->
+        <div x-show="showPartnerModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+             style="display: none;">
+            
+            <div @click.away="showPartnerModal = false" 
+                 class="relative max-w-lg w-full bg-[#161F30] border-2 border-[#FF5722] p-8 text-left rounded-none shadow-[0_0_50px_rgba(255,87,34,0.25)]">
+                
+                <!-- Close Button -->
+                <button @click="showPartnerModal = false" 
+                        class="absolute top-4 right-4 text-gray-400 hover:text-[#FF5722] transition-colors text-xl font-bold font-sans cursor-pointer">
+                    ✕
+                </button>
+
+                <!-- Icon and Title -->
+                <div class="flex items-center gap-4 mb-6 border-b border-gray-800 pb-4">
+                    <span class="w-12 h-12 bg-[#FF5722]/10 text-[#FF5722] flex items-center justify-center rounded-[2px] border border-[#FF5722]/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M12 15v2m0-6h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                    <h3 class="font-heading font-extrabold text-2xl uppercase tracking-wider text-white">
+                        Hợp Tác Đối Tác Sân
+                    </h3>
+                </div>
+
+                <!-- Content -->
+                <p class="text-gray-300 font-sans text-sm leading-relaxed mb-6">
+                    Để đảm bảo tính bảo mật và an toàn vận hành hệ thống, tài khoản dành cho **Chủ Sân (Owner)** không được đăng ký tự động mà sẽ do **Ban Quản Trị PlayManagement** kiểm tra, xác thực và cấp trực tiếp.
+                </p>
+
+                <!-- Contact details box -->
+                <div class="bg-[#0B0F17] border border-gray-800 p-5 rounded-[2px] space-y-4 font-sans text-sm mb-6">
+                    <div class="flex items-start gap-3">
+                        <span class="font-heading font-bold text-gray-500 uppercase tracking-wider text-xs w-20 pt-0.5">Hotline:</span>
+                        <a href="tel:0901234567" class="text-white hover:text-[#39FF14] font-bold transition-colors">0901 234 567</a>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="font-heading font-bold text-gray-500 uppercase tracking-wider text-xs w-20 pt-0.5">Email:</span>
+                        <a href="mailto:partner@playmanagement.vn" class="text-white hover:text-[#39FF14] font-bold transition-colors">partner@playmanagement.vn</a>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="font-heading font-bold text-gray-500 uppercase tracking-wider text-xs w-20 pt-0.5">Hỗ Trợ:</span>
+                        <span class="text-gray-400">24/7 đối với hệ thống tự động hóa VietQR</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="mailto:partner@playmanagement.vn?subject=Yeu%20cau%20hop%20tac%20chu%20san%20-%20PlayManagement" 
+                       class="flex-1 py-3 px-4 bg-[#FF5722] hover:bg-[#FF5722]/90 text-white font-heading font-extrabold uppercase tracking-wider text-center text-sm rounded-[2px] transition-all cursor-pointer">
+                        Gửi Email Hợp Tác
+                    </a>
+                    <button @click="showPartnerModal = false" 
+                            class="flex-1 py-3 px-4 bg-transparent border border-gray-700 text-gray-400 hover:text-white font-heading font-bold uppercase tracking-wider text-sm rounded-[2px] transition-all cursor-pointer">
+                        Đóng
+                    </button>
+                </div>
+
+            </div>
+        </div>
 
     </body>
 </html>
