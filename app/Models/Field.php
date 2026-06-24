@@ -45,7 +45,7 @@ class Field extends Model
             $prefix = $mapping[$sport->slug] ?? strtoupper(substr($sport->slug, 0, 3));
         }
 
-        $latest = static::where('code', 'LIKE', $prefix . '-%')
+        $latest = static::where('code', 'LIKE', $prefix.'-%')
             ->orderBy('id', 'desc')
             ->first();
 
@@ -54,30 +54,29 @@ class Field extends Model
             $num = intval($matches[1]) + 1;
         }
 
-        $code = $prefix . '-' . str_pad($num, 3, '0', STR_PAD_LEFT);
-        
+        $code = $prefix.'-'.str_pad($num, 3, '0', STR_PAD_LEFT);
+
         while (static::where('code', $code)->exists()) {
             $num++;
-            $code = $prefix . '-' . str_pad($num, 3, '0', STR_PAD_LEFT);
+            $code = $prefix.'-'.str_pad($num, 3, '0', STR_PAD_LEFT);
         }
 
         return $code;
     }
 
-
     // Gom đầy đủ tất cả các trường dữ liệu của cả bạn và nhóm
     protected $fillable = [
-        'owner_id', 
-        'sport_id', 
-        'name', 
-        'code', 
+        'owner_id',
+        'sport_id',
+        'name',
+        'code',
         'description',
-        'address', 
-        'price_per_hour', 
-        'open_time', 
+        'address',
+        'price_per_hour',
+        'open_time',
         'close_time',
-        'image', 
-        'image_url', 
+        'image',
+        'image_url',
         'status',
     ];
 

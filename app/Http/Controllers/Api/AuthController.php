@@ -12,16 +12,17 @@ use App\Http\Requests\Api\Auth\RegisterRequest;
 use App\Http\Requests\Api\Auth\ResetPasswordRequest;
 use App\Http\Requests\Api\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
+use App\Mail\SendOtpMail;
+use App\Models\FailedLoginAttempt;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\SendOtpMail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -34,12 +35,13 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
-            \App\Models\FailedLoginAttempt::create([
+            FailedLoginAttempt::create([
                 'email' => $request->input('email'),
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'attempted_at' => now(),
             ]);
+
             return $this->errorResponse('Invalid email or password', 401);
         }
 
@@ -67,7 +69,7 @@ class AuthController extends Controller
             return $this->errorResponse('Refresh token has expired', 401);
         }
 
-        if (isset($token->is_active) && !$token->is_active) {
+        if (isset($token->is_active) && ! $token->is_active) {
             return $this->errorResponse('Refresh token has been temporarily deactivated', 401);
         }
 
@@ -136,7 +138,7 @@ class AuthController extends Controller
         if ($request->has('role_name') && strtolower($request->input('role_name')) === 'owner') {
             $isAttemptingOwner = true;
         }
-        if ($ownerRole && $request->has('role_id') && (int)$request->input('role_id') === (int)$ownerRole->id) {
+        if ($ownerRole && $request->has('role_id') && (int) $request->input('role_id') === (int) $ownerRole->id) {
             $isAttemptingOwner = true;
         }
 
@@ -144,14 +146,14 @@ class AuthController extends Controller
             return $this->errorResponse('Đăng ký tài khoản chủ sân không được phép.', 403);
         }
 
-        $cachedOtp = Cache::get('otp_' . $request->email);
-        if (!$cachedOtp || $cachedOtp !== $request->otp) {
+        $cachedOtp = Cache::get('otp_'.$request->email);
+        if (! $cachedOtp || $cachedOtp !== $request->otp) {
             throw ValidationException::withMessages([
                 'otp' => ['Mã OTP không chính xác hoặc đã hết hạn.'],
             ]);
         }
 
-        Cache::forget('otp_' . $request->email);
+        Cache::forget('otp_'.$request->email);
 
         $customerRole = Role::firstOrCreate(
             ['name' => RoleEnum::CUSTOMER->value],
@@ -190,8 +192,8 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'lowercase', app()->runningUnitTests() ? 'email' : 'email:rfc,dns', 'max:255', 'unique:'.User::class],
         ]);
 
-        $otpCode = app()->runningUnitTests() ? '123456' : (string)rand(100000, 999999);
-        Cache::put('otp_' . $request->email, $otpCode, now()->addMinutes(5));
+        $otpCode = app()->runningUnitTests() ? '123456' : (string) rand(100000, 999999);
+        Cache::put('otp_'.$request->email, $otpCode, now()->addMinutes(5));
 
         Mail::to($request->email)->send(new SendOtpMail($otpCode));
 

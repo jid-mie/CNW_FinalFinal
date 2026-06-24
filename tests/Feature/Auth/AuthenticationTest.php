@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,8 +21,8 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $this->seed(\Database\Seeders\RolesSeeder::class);
-        $customerRole = \App\Models\Role::where('name', 'customer')->firstOrFail();
+        $this->seed(RolesSeeder::class);
+        $customerRole = Role::where('name', 'customer')->firstOrFail();
         $user = User::factory()->create([
             'role_id' => $customerRole->id,
         ]);
@@ -33,7 +35,6 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('customer.dashboard', absolute: false));
     }
-
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {

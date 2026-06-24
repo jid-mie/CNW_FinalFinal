@@ -19,6 +19,7 @@ class SeepayWebhookTest extends TestCase
     use RefreshDatabase;
 
     private User $customer;
+
     private Booking $booking;
 
     protected function setUp(): void
@@ -75,10 +76,10 @@ class SeepayWebhookTest extends TestCase
     public function test_it_rejects_webhook_with_invalid_token()
     {
         $response = $this->postJson('/api/webhooks/seepay', [
-            'code' => 'PLAY' . $this->booking->id,
+            'code' => 'PLAY'.$this->booking->id,
             'transferAmount' => 150000,
         ], [
-            'Authorization' => 'Bearer wrong_token'
+            'Authorization' => 'Bearer wrong_token',
         ]);
 
         $response->assertStatus(401);
@@ -91,7 +92,7 @@ class SeepayWebhookTest extends TestCase
             'code' => 'Chuyen khoan dat san da bong',
             'transferAmount' => 150000,
         ], [
-            'Authorization' => 'Bearer test_secret_token'
+            'Authorization' => 'Bearer test_secret_token',
         ]);
 
         $response->assertStatus(422);
@@ -105,7 +106,7 @@ class SeepayWebhookTest extends TestCase
             'code' => 'PLAY99999',
             'transferAmount' => 150000,
         ], [
-            'Authorization' => 'Bearer test_secret_token'
+            'Authorization' => 'Bearer test_secret_token',
         ]);
 
         $response->assertStatus(404);
@@ -117,10 +118,10 @@ class SeepayWebhookTest extends TestCase
         $this->booking->update(['status' => 'confirmed']);
 
         $response = $this->postJson('/api/webhooks/seepay', [
-            'code' => 'PLAY' . $this->booking->id,
+            'code' => 'PLAY'.$this->booking->id,
             'transferAmount' => 150000,
         ], [
-            'Authorization' => 'Bearer test_secret_token'
+            'Authorization' => 'Bearer test_secret_token',
         ]);
 
         $response->assertStatus(200);
@@ -131,10 +132,10 @@ class SeepayWebhookTest extends TestCase
     public function test_it_rejects_webhook_if_amount_is_insufficient()
     {
         $response = $this->postJson('/api/webhooks/seepay', [
-            'code' => 'PLAY' . $this->booking->id,
+            'code' => 'PLAY'.$this->booking->id,
             'transferAmount' => 100000, // Thấp hơn 150000
         ], [
-            'Authorization' => 'Bearer test_secret_token'
+            'Authorization' => 'Bearer test_secret_token',
         ]);
 
         $response->assertStatus(400);
@@ -145,11 +146,11 @@ class SeepayWebhookTest extends TestCase
     public function test_it_successfully_processes_webhook_and_confirms_booking()
     {
         $response = $this->postJson('/api/webhooks/seepay', [
-            'code' => 'PLAY' . $this->booking->id,
+            'code' => 'PLAY'.$this->booking->id,
             'transferAmount' => 150000,
             'referenceCode' => 'SP-TRX12345678',
         ], [
-            'Authorization' => 'Bearer test_secret_token'
+            'Authorization' => 'Bearer test_secret_token',
         ]);
 
         $response->assertStatus(200);

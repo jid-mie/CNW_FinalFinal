@@ -11,14 +11,19 @@ class TimeSlotController extends Controller
 {
     public function index(Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
         $timeSlots = $field->timeSlots()->orderBy('start_time')->paginate(20);
+
         return view('owner.time-slots.index', compact('field', 'timeSlots'));
     }
 
     public function store(Request $request, Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
 
         $request->validate([
             'start_time' => 'required|date_format:H:i',
@@ -34,7 +39,9 @@ class TimeSlotController extends Controller
             ->where('end_time', '>', $start_time)
             ->exists();
 
-        if ($overlap) return back()->with('error', 'Khung giờ bị trùng lịch');
+        if ($overlap) {
+            return back()->with('error', 'Khung giờ bị trùng lịch');
+        }
 
         $field->timeSlots()->create([
             'start_time' => $start_time,
@@ -47,7 +54,9 @@ class TimeSlotController extends Controller
 
     public function update(Request $request, TimeSlot $timeSlot)
     {
-        if ($timeSlot->field->owner_id !== auth()->id()) abort(403);
+        if ($timeSlot->field->owner_id !== auth()->id()) {
+            abort(403);
+        }
 
         $request->validate([
             'start_time' => 'required|date_format:H:i',
@@ -64,7 +73,9 @@ class TimeSlotController extends Controller
             ->where('end_time', '>', $start_time)
             ->exists();
 
-        if ($overlap) return back()->with('error', 'Khung giờ bị trùng lịch');
+        if ($overlap) {
+            return back()->with('error', 'Khung giờ bị trùng lịch');
+        }
 
         $timeSlot->update([
             'start_time' => $start_time,
@@ -77,17 +88,24 @@ class TimeSlotController extends Controller
 
     public function destroy(TimeSlot $timeSlot)
     {
-        if ($timeSlot->field->owner_id !== auth()->id()) abort(403);
+        if ($timeSlot->field->owner_id !== auth()->id()) {
+            abort(403);
+        }
         $timeSlot->delete();
+
         return back()->with('success', 'Xoá khung giờ thành công');
     }
 
     public function generateDefault(Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
 
         $existing = $field->timeSlots()->count();
-        if ($existing > 0) return back()->with('error', 'Sân đã có khung giờ, không thể tạo mặc định');
+        if ($existing > 0) {
+            return back()->with('error', 'Sân đã có khung giờ, không thể tạo mặc định');
+        }
 
         $times = [];
         for ($h = 6; $h < 22; $h++) {

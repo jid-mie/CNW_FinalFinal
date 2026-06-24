@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\Owner;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateFieldRequest extends FormRequest
@@ -14,12 +15,12 @@ class UpdateFieldRequest extends FormRequest
     public function rules(): array
     {
         $field = $this->route('field');
-        $fieldId = $field instanceof \Illuminate\Database\Eloquent\Model ? $field->id : $field;
+        $fieldId = $field instanceof Model ? $field->id : $field;
 
         return [
             'sport_id' => ['sometimes', 'exists:sports,id'],
             'name' => ['sometimes', 'string', 'max:255'],
-            'code' => ['sometimes', 'string', 'max:50', 'unique:fields,code,' . $fieldId],
+            'code' => ['sometimes', 'string', 'max:50', 'unique:fields,code,'.$fieldId],
             'description' => ['nullable', 'string', 'max:2000'],
             'address' => ['sometimes', 'string', 'max:500'],
             'price_per_hour' => ['sometimes', 'numeric', 'min:0', 'max:999999999.99'],

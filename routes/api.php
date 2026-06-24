@@ -1,10 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Customer\BookingsController;
+use App\Http\Controllers\Api\Customer\FieldsController;
+use App\Http\Controllers\Api\Customer\PaymentsController;
+use App\Http\Controllers\Api\Customer\SportsController;
 use App\Http\Controllers\Api\Owner\BookingController;
 use App\Http\Controllers\Api\Owner\CustomerController;
 use App\Http\Controllers\Api\Owner\FieldController;
 use App\Http\Controllers\Api\Owner\TimeSlotController;
+use App\Http\Controllers\Api\SeepayWebhookController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,60');
@@ -13,7 +19,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,60');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:3,60');
 Route::post('/refresh-token', [AuthController::class, 'refresh']);
-Route::post('/webhooks/seepay', [\App\Http\Controllers\Api\SeepayWebhookController::class, 'handle']);
+Route::post('/webhooks/seepay', [SeepayWebhookController::class, 'handle']);
 
 // ✅ TEST WEBHOOK (development only) - Simulate Seepay webhook to confirm payment
 Route::post('/webhooks/seepay/test', function (\Illuminate\Http\Request $request) {
@@ -41,7 +47,7 @@ Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
 
     // Admin API Routes
     Route::middleware('role:admin')->prefix('admin')->name('api.admin.')->group(function () {
-        Route::post('/users', [\App\Http\Controllers\Api\Admin\UserController::class, 'store'])->name('users.store');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
     });
 
     // Owner API Routes
@@ -92,24 +98,24 @@ Route::middleware(['auth:sanctum', 'abilities:access'])->group(function () {
     // Customer API Routes
     Route::middleware('role:customer')->prefix('customer')->name('api.customer.')->group(function () {
         // Sports endpoints
-        Route::get('/sports', [\App\Http\Controllers\Api\Customer\SportsController::class, 'index'])->name('sports.index');
-        Route::get('/sports/{sport}', [\App\Http\Controllers\Api\Customer\SportsController::class, 'show'])->name('sports.show');
+        Route::get('/sports', [SportsController::class, 'index'])->name('sports.index');
+        Route::get('/sports/{sport}', [SportsController::class, 'show'])->name('sports.show');
 
         // Fields endpoints
-        Route::get('/fields', [\App\Http\Controllers\Api\Customer\FieldsController::class, 'index'])->name('fields.index');
-        Route::get('/fields/{field}', [\App\Http\Controllers\Api\Customer\FieldsController::class, 'show'])->name('fields.show');
-        Route::get('/fields/{field}/time-slots', [\App\Http\Controllers\Api\Customer\FieldsController::class, 'timeSlots'])->name('fields.time-slots');
+        Route::get('/fields', [FieldsController::class, 'index'])->name('fields.index');
+        Route::get('/fields/{field}', [FieldsController::class, 'show'])->name('fields.show');
+        Route::get('/fields/{field}/time-slots', [FieldsController::class, 'timeSlots'])->name('fields.time-slots');
 
         // Bookings endpoints
-        Route::get('/bookings', [\App\Http\Controllers\Api\Customer\BookingsController::class, 'index'])->name('bookings.index');
-        Route::post('/bookings', [\App\Http\Controllers\Api\Customer\BookingsController::class, 'store'])->name('bookings.store');
-        Route::get('/bookings/{booking}', [\App\Http\Controllers\Api\Customer\BookingsController::class, 'show'])->name('bookings.show');
-        Route::patch('/bookings/{booking}', [\App\Http\Controllers\Api\Customer\BookingsController::class, 'update'])->name('bookings.update');
-        Route::post('/bookings/{booking}/cancel', [\App\Http\Controllers\Api\Customer\BookingsController::class, 'cancel'])->name('bookings.cancel');
+        Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
+        Route::post('/bookings', [BookingsController::class, 'store'])->name('bookings.store');
+        Route::get('/bookings/{booking}', [BookingsController::class, 'show'])->name('bookings.show');
+        Route::patch('/bookings/{booking}', [BookingsController::class, 'update'])->name('bookings.update');
+        Route::post('/bookings/{booking}/cancel', [BookingsController::class, 'cancel'])->name('bookings.cancel');
 
         // Payments endpoints
-        Route::get('/payments', [\App\Http\Controllers\Api\Customer\PaymentsController::class, 'index'])->name('payments.index');
-        Route::post('/bookings/{booking}/payment', [\App\Http\Controllers\Api\Customer\PaymentsController::class, 'store'])->name('payments.store');
-        Route::get('/payments/{payment}', [\App\Http\Controllers\Api\Customer\PaymentsController::class, 'show'])->name('payments.show');
+        Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
+        Route::post('/bookings/{booking}/payment', [PaymentsController::class, 'store'])->name('payments.store');
+        Route::get('/payments/{payment}', [PaymentsController::class, 'show'])->name('payments.show');
     });
 });

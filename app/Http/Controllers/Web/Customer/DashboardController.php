@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -55,7 +56,7 @@ class DashboardController extends Controller
         }
 
         $booking->status = 'cancelled';
-        $booking->cancelled_at = \Illuminate\Support\Carbon::now();
+        $booking->cancelled_at = Carbon::now();
         $booking->save();
 
         return back()->with('success', 'Hủy đặt sân thành công.');

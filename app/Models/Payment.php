@@ -12,14 +12,14 @@ class Payment extends Model
 
     // Hòa trộn đầy đủ các trường của cả bạn và nhóm để tránh lỗi Mass Assignment
     protected $fillable = [
-        'booking_id', 
-        'amount', 
+        'booking_id',
+        'amount',
         'method',           // Tên cột của nhóm
         'payment_method',   // Tên cột của bạn
         'status',
         'transaction_code', // Tên cột của nhóm
         'payment_code',     // Tên cột của bạn
-        'paid_at', 
+        'paid_at',
         'note',
     ];
 

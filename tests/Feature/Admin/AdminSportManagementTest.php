@@ -3,8 +3,8 @@
 namespace Tests\Feature\Admin;
 
 use App\Models\Role;
-use App\Models\User;
 use App\Models\Sport;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +15,9 @@ class AdminSportManagementTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private Role $adminRole;
+
     private string $testImageContent;
 
     protected function setUp(): void
@@ -28,7 +30,7 @@ class AdminSportManagementTest extends TestCase
         ]);
 
         $testImagePath = public_path('test_image.png');
-        if (!file_exists($testImagePath)) {
+        if (! file_exists($testImagePath)) {
             @copy('https://raw.githubusercontent.com/laravel/framework/9.x/tests/Foundation/fixtures/placeholder.png', $testImagePath);
         }
         $this->testImageContent = file_exists($testImagePath) ? file_get_contents($testImagePath) : 'fake-image-bytes';
@@ -81,7 +83,7 @@ class AdminSportManagementTest extends TestCase
 
         // Create sport first with an initial image
         $image1 = UploadedFile::fake()->createWithContent('badminton.png', $this->testImageContent)->mimeType('image/png');
-        
+
         $response = $this->post(route('admin.sports.store'), [
             'name' => 'Badminton',
             'description' => 'Initial desc',
@@ -99,7 +101,7 @@ class AdminSportManagementTest extends TestCase
         $sport = Sport::where('name', 'Badminton')->first();
         $this->assertNotNull($sport);
         $initialImageUrl = $sport->image_url;
-        
+
         $oldPath = $initialImageUrl;
         if (str_contains($oldPath, 'storage/')) {
             $oldPath = substr($oldPath, strpos($oldPath, 'storage/') + 8);

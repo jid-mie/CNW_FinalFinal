@@ -1,13 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FieldController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\SportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\Admin\SportController; 
-use App\Http\Controllers\Admin\FieldController;
-use App\Http\Controllers\Admin\PaymentController; 
-use App\Http\Controllers\Admin\BookingController;
-use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Web\Owner\BookingController as OwnerBookingController;
 use App\Http\Controllers\Web\Owner\CustomerController as OwnerCustomerController;
 use App\Http\Controllers\Web\Owner\DashboardController as OwnerDashboardController;
@@ -34,13 +34,12 @@ Route::get('/dashboard', function () {
     }
 })->middleware(['auth'])->name('dashboard');
 
-
 // 3. 🛡️ PHÂN HỆ ADMIN DASHBOARD (Đã bảo mật và đồng bộ hóa triệt để)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    
+
     // Trang tổng quan đồ thị Dashboard Admin
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Quản lý Users gốc của nhóm bạn
     Route::resource('users', UserController::class);
 
@@ -61,7 +60,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/fields', [FieldController::class, 'store'])->name('fields.store');
     Route::post('/fields/{id}/update', [FieldController::class, 'update'])->name('fields.update');
     Route::post('/fields/{id}/delete', [FieldController::class, 'destroy'])->name('fields.destroy');
-    
+
     // 📅 Phân hệ quản lý Đặt lịch (Bookings)
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/pending', [BookingController::class, 'pending'])->name('bookings.pending');
@@ -81,7 +80,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/security/tokens/{id}/toggle', [SecurityController::class, 'toggleToken'])->name('security.tokens.toggle');
     Route::post('/security/logs/clear', [SecurityController::class, 'clearLogs'])->name('security.logs.clear');
 });
-
 
 // 4. Phân hệ của CHỦ SÂN (Owner Routes)
 Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
@@ -124,8 +122,8 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
     Route::post('/profile/avatar', [OwnerProfileController::class, 'avatar'])->name('profile.avatar');
 });
 
-use App\Http\Controllers\Web\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Web\Customer\BookingController as CustomerBookingController;
+use App\Http\Controllers\Web\Customer\DashboardController as CustomerDashboardController;
 
 // 5. Phân hệ của KHÁCH HÀNG (Customer Routes)
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
@@ -143,7 +141,6 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
     Route::get('/booking/field/{field}/slots', [CustomerBookingController::class, 'getAvailableSlots'])->name('booking.slots');
 });
 
-
 // 6. Quản lý thông tin tài khoản cá nhân chung (Profile)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -151,17 +148,27 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
 // 7. 🌟 CỤM ROUTE GIẢ LẬP USERS: Phục vụ Sidebar chung không bao giờ crash lỗi 500
 Route::prefix('users')->name('users.')->group(function () {
-    Route::get('/', function () { return 'Trang danh sách thành viên'; })->name('index');
-    Route::get('/create', function () { return 'Trang thêm thành viên'; })->name('create');
-    Route::post('/', function () { return 'Xử lý thêm'; })->name('store');
-    Route::get('/{id}/edit', function () { return 'Trang sửa thành viên'; })->name('edit');
-    Route::post('/{id}/update', function () { return 'Xử lý cập nhật'; })->name('update');
-    Route::post('/{id}/delete', function () { return 'Xử lý xóa'; })->name('destroy');
+    Route::get('/', function () {
+        return 'Trang danh sách thành viên';
+    })->name('index');
+    Route::get('/create', function () {
+        return 'Trang thêm thành viên';
+    })->name('create');
+    Route::post('/', function () {
+        return 'Xử lý thêm';
+    })->name('store');
+    Route::get('/{id}/edit', function () {
+        return 'Trang sửa thành viên';
+    })->name('edit');
+    Route::post('/{id}/update', function () {
+        return 'Xử lý cập nhật';
+    })->name('update');
+    Route::post('/{id}/delete', function () {
+        return 'Xử lý xóa';
+    })->name('destroy');
 });
-
 
 // Nạp hệ thống Đăng ký / Đăng nhập mặc định của Laravel Breeze
 require __DIR__.'/auth.php';

@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Sport;
-use App\Models\Field;
-use App\Models\TimeSlot;
 use App\Models\Booking;
+use App\Models\Field;
 use App\Models\Payment;
+use App\Models\Role;
+use App\Models\Sport;
+use App\Models\TimeSlot;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,9 +17,13 @@ class OwnerDashboardTest extends TestCase
     use RefreshDatabase;
 
     private User $owner;
+
     private User $customer;
+
     private Sport $football;
+
     private Field $field;
+
     private TimeSlot $timeSlot;
 
     protected function setUp(): void
@@ -116,7 +120,7 @@ class OwnerDashboardTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewHas('stats');
-        
+
         $stats = $response->viewData('stats');
         $this->assertEquals(1, $stats['total_fields']);
         $this->assertEquals(2, $stats['today_bookings']); // 1 pending + 1 completed

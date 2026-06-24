@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Sport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class SportController extends Controller
@@ -15,6 +16,7 @@ class SportController extends Controller
     public function index()
     {
         $sports = Sport::orderBy('id', 'desc')->get();
+
         return view('admin.sports.index', compact('sports'));
     }
 
@@ -22,9 +24,9 @@ class SportController extends Controller
      * 🎯 ĐÃ BỔ SUNG: Mở Form trang thêm mới môn thể thao
      */
     public function add()
-{
-    return view('admin.sports.add');
-}
+    {
+        return view('admin.sports.add');
+    }
 
     /**
      * Xử lý thêm mới môn thể thao vào hệ thống từ Form Create
@@ -41,7 +43,7 @@ class SportController extends Controller
         $imageUrl = $request->image_url;
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('sports', 'public');
-            $imageUrl = 'storage/' . $path;
+            $imageUrl = 'storage/'.$path;
         }
 
         Sport::create([
@@ -61,6 +63,7 @@ class SportController extends Controller
     public function edit($id)
     {
         $sport = Sport::findOrFail($id);
+
         return view('admin.sports.edit', compact('sport'));
     }
 
@@ -77,7 +80,7 @@ class SportController extends Controller
         ]);
 
         $sport = Sport::findOrFail($id);
-        
+
         $imageUrl = $request->filled('image_url') ? $request->image_url : $sport->image_url;
         if ($request->hasFile('image_file')) {
             // Delete old file if it was uploaded to storage
@@ -92,12 +95,12 @@ class SportController extends Controller
                 }
                 $oldPath = ltrim($oldPath, '/');
 
-                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
                 }
             }
             $path = $request->file('image_file')->store('sports', 'public');
-            $imageUrl = 'storage/' . $path;
+            $imageUrl = 'storage/'.$path;
         }
 
         $sport->update([
@@ -116,13 +119,13 @@ class SportController extends Controller
     public function toggleStatus($id)
     {
         $sport = Sport::findOrFail($id);
-        $sport->is_active = !$sport->is_active;
+        $sport->is_active = ! $sport->is_active;
         $sport->save();
 
         return response()->json([
             'success' => true,
             'is_active' => $sport->is_active,
-            'message' => 'Cập nhật trạng thái bộ môn thành công!'
+            'message' => 'Cập nhật trạng thái bộ môn thành công!',
         ]);
     }
 

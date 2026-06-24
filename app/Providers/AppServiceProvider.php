@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,8 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Validation\Rules\Password::defaults(function () {
-            $rule = \Illuminate\Validation\Rules\Password::min(8)
+        Password::defaults(function () {
+            $rule = Password::min(8)
                 ->letters()
                 ->mixedCase()
                 ->numbers()
@@ -30,10 +32,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // Validate that Sanctum personal access tokens are active
-        \Laravel\Sanctum\Sanctum::authenticateAccessTokensUsing(function ($accessToken, $isValid) {
-            if (isset($accessToken->is_active) && !$accessToken->is_active) {
+        Sanctum::authenticateAccessTokensUsing(function ($accessToken, $isValid) {
+            if (isset($accessToken->is_active) && ! $accessToken->is_active) {
                 return false;
             }
+
             return $isValid;
         });
     }

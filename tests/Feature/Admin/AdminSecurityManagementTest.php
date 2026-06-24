@@ -2,11 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\FailedLoginAttempt;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\FailedLoginAttempt;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\PersonalAccessToken;
 use Tests\TestCase;
 
@@ -15,8 +14,11 @@ class AdminSecurityManagementTest extends TestCase
     use RefreshDatabase;
 
     private Role $adminRole;
+
     private Role $ownerRole;
+
     private User $adminUser;
+
     private User $ownerUser;
 
     protected function setUp(): void
@@ -74,23 +76,23 @@ class AdminSecurityManagementTest extends TestCase
     {
         // Create a dummy token for owner user
         $token = $this->ownerUser->createToken('test-token');
-        
+
         $dbToken = PersonalAccessToken::findToken($token->plainTextToken);
-        $this->assertTrue((bool)$dbToken->is_active);
+        $this->assertTrue((bool) $dbToken->is_active);
 
         // Toggle state to false
         $response = $this->actingAs($this->adminUser)
             ->post("/admin/security/tokens/{$dbToken->id}/toggle");
 
         $response->assertRedirect('/admin/security');
-        $this->assertFalse((bool)$dbToken->refresh()->is_active);
+        $this->assertFalse((bool) $dbToken->refresh()->is_active);
 
         // Toggle state back to true
         $response = $this->actingAs($this->adminUser)
             ->post("/admin/security/tokens/{$dbToken->id}/toggle");
 
         $response->assertRedirect('/admin/security');
-        $this->assertTrue((bool)$dbToken->refresh()->is_active);
+        $this->assertTrue((bool) $dbToken->refresh()->is_active);
     }
 
     /**
