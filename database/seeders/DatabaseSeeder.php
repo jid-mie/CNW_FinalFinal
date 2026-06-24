@@ -154,88 +154,105 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // ── 8. Bookings + Payments (Bản MA TRẬN 35 kịch bản - Bảo đảm chia đều 4 trang) ──
+        // ── 8. Bookings + Payments (Bản MA TRẬN dữ liệu động - Tự động tính toán theo ngày hiện tại) ──
         $allSlots = TimeSlot::all()->groupBy('field_id');
         $customerCount = count($customerUsers);
         $fieldCount = count($fields);
 
-        $scenarios = [
-            // Ngày 20/05/2026
-            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-20', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-20', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 21/05/2026
-            ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-21', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
-            ['date' => '2026-05-21', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 22/05/2026
-            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-22', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-22', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 23/05/2026
-            ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-23', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-23', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 24/05/2026
-            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-24', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
-            ['date' => '2026-05-24', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 25/05/2026
-            ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-25', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-25', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 26/05/2026
-            ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-26', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-26', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            // Ngày 27/05/2026
-            ['date' => '2026-05-27', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-27', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
-            ['date' => '2026-05-27', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 28/05/2026 (Mốc hôm nay)
-            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-28', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-28', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            // Ngày 29/05/2026
-            ['date' => '2026-05-29', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-29', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            // Ngày 30/05/2026
-            ['date' => '2026-05-30', 'status' => 'cancelled', 'method' => 'bank_transfer', 'p_status' => 'refunded'],
-            ['date' => '2026-05-30', 'status' => 'pending',   'method' => 'bank_transfer', 'p_status' => 'pending'],
-            ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-            ['date' => '2026-05-30', 'status' => 'completed', 'method' => 'bank_transfer', 'p_status' => 'paid'],
-        ];
+        $bookingKeys = [];
+        $bookingsCount = 120; // Tạo 120 bookings mẫu cho nhiều trang và biểu đồ đẹp mắt
+        $now = Carbon::now();
 
-        foreach ($scenarios as $index => $scene) {
-            $field = $fields[$index % $fieldCount];
-            $customer = $customerUsers[$index % $customerCount];
+        for ($i = 0; $i < $bookingsCount; $i++) {
+            // Phân bổ ngày đặt sân:
+            // - 70% trong quá khứ (-30 ngày tới -1 ngày) -> làm sạch lịch sử và tạo doanh thu giả lập
+            // - 10% trong ngày hôm nay (0) -> test trực quan trên dashboard
+            // - 20% trong tương lai (+1 ngày tới +7 ngày) -> test đặt trước, duyệt lịch sân
+            $randVal = rand(1, 100);
+            if ($randVal <= 70) {
+                $daysOffset = rand(-30, -1);
+                $status = rand(1, 10) <= 8 ? 'completed' : 'cancelled';
+                $p_status = $status === 'completed' ? 'paid' : 'refunded';
+            } elseif ($randVal <= 80) {
+                $daysOffset = 0;
+                $statusRand = rand(1, 10);
+                if ($statusRand <= 4) {
+                    $status = 'completed';
+                    $p_status = 'paid';
+                } elseif ($statusRand <= 7) {
+                    $status = 'confirmed';
+                    $p_status = 'paid';
+                } elseif ($statusRand <= 9) {
+                    $status = 'pending';
+                    $p_status = 'pending';
+                } else {
+                    $status = 'cancelled';
+                    $p_status = 'unpaid';
+                }
+            } else {
+                $daysOffset = rand(1, 7);
+                $statusRand = rand(1, 10);
+                if ($statusRand <= 6) {
+                    $status = 'confirmed';
+                    $p_status = 'paid';
+                } elseif ($statusRand <= 9) {
+                    $status = 'pending';
+                    $p_status = 'pending';
+                } else {
+                    $status = 'cancelled';
+                    $p_status = 'unpaid';
+                }
+            }
+
+            $bookingDate = (clone $now)->addDays($daysOffset)->format('Y-m-d');
+
+            // Chọn ngẫu nhiên 1 sân
+            $field = $fields[$i % $fieldCount];
             $slots = $allSlots->get($field->id, collect());
-            $slot = $slots->isNotEmpty() ? $slots->random() : TimeSlot::first();
+            if ($slots->isEmpty()) {
+                continue;
+            }
+
+            // Tìm slot trống của sân đó trong ngày cụ thể để tránh lỗi UNIQUE overlap
+            $slot = null;
+            foreach ($slots->shuffle() as $s) {
+                $key = "{$field->id}-{$bookingDate}-{$s->id}";
+                if (!isset($bookingKeys[$key])) {
+                    $slot = $s;
+                    $bookingKeys[$key] = true;
+                    break;
+                }
+            }
+
+            if (!$slot) {
+                // Nếu sân này đã kín lịch vào ngày này, bỏ qua
+                continue;
+            }
+
+            $customer = $customerUsers[rand(0, $customerCount - 1)];
 
             $booking = Booking::create([
                 'customer_id' => $customer->id,
                 'field_id' => $field->id,
                 'time_slot_id' => $slot->id,
-                'booking_date' => $scene['date'],
+                'booking_date' => $bookingDate,
                 'total_price' => $field->price_per_hour,
-                'status' => $scene['status'],
-                'note' => 'Hóa đơn giả lập dòng tiền số '.($index + 1),
-                'confirmed_at' => $scene['status'] !== 'pending' ? now() : null,
-                'cancelled_at' => $scene['status'] === 'cancelled' ? now() : null,
+                'status' => $status,
+                'note' => 'Hóa đơn giả lập dòng tiền số ' . ($i + 1),
+                'confirmed_at' => in_array($status, ['confirmed', 'completed']) ? (clone $now)->addDays($daysOffset)->subHours(rand(1, 5)) : null,
+                'cancelled_at' => $status === 'cancelled' ? (clone $now)->addDays($daysOffset)->subHours(rand(1, 2)) : null,
             ]);
 
             Payment::create([
                 'booking_id' => $booking->id,
                 'amount' => $field->price_per_hour,
-                'method' => $scene['method'],
-                'status' => $scene['p_status'],
-                'transaction_code' => 'TXN-'.str_pad($index + 1, 3, '0', STR_PAD_LEFT),
-                'paid_at' => $scene['p_status'] === 'paid' ? Carbon::parse($scene['date'].' 16:45:00') : null,
+                'method' => 'bank_transfer',
+                'status' => $p_status,
+                'transaction_code' => 'TXN-' . str_pad($i + 1, 5, '0', STR_PAD_LEFT),
+                'paid_at' => $p_status === 'paid' ? Carbon::parse($bookingDate . ' ' . sprintf('%02d:%02d:00', rand(6, 21), rand(0, 59))) : null,
             ]);
         }
 
-        $this->command->info('✓ Seeded thành công 35 dòng dữ liệu mẫu phân trang!');
+        $this->command->info('✓ Seeded thành công ' . count($bookingKeys) . ' dòng dữ liệu đặt sân động thực tế!');
     }
 }
