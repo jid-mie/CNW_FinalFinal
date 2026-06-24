@@ -97,15 +97,29 @@ jobs:
   deploy:
     name: Deploy production
     needs: ci
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SSH_HOST != ''
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
 
     steps:
+      - name: Check SSH Configuration
+        id: check_ssh
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          if [ -z "$SSH_HOST" ]; then
+            echo "has_ssh=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_ssh=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         uses: actions/checkout@v4
 
       - name: Setup PHP
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -113,12 +127,14 @@ jobs:
           coverage: none
 
       - name: Setup Node
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
 
       - name: Install deps & build
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         run: |
           composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction --no-progress
           npm ci
@@ -126,6 +142,7 @@ jobs:
           rm -rf node_modules
 
       - name: Configure SSH
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
@@ -133,6 +150,7 @@ jobs:
           ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Sync files
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         run: |
           rsync -az --delete \
             --exclude='.env' \
@@ -141,6 +159,7 @@ jobs:
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
 
       - name: Run remote release cmds
+        if: steps.check_ssh.outputs.has_ssh == 'true'
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.DEPLOY_PATH }} && \
             php artisan down || true && \
