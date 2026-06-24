@@ -97,7 +97,7 @@ jobs:
   deploy:
     name: Deploy production
     needs: ci
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.SSH_HOST != ''
     runs-on: ubuntu-latest
     environment: production
 
