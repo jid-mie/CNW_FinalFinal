@@ -70,6 +70,9 @@ jobs:
           composer validate --strict
           ./vendor/bin/pint --test
 
+      - name: Build assets
+        run: npm run build
+
       - name: DB migrate
         env:
           DB_CONNECTION: mysql
@@ -90,9 +93,6 @@ jobs:
           DB_USERNAME: root
           DB_PASSWORD: root
         run: composer test
-
-      - name: Build assets
-        run: npm run build
 
   deploy:
     name: Deploy production
