@@ -22,10 +22,12 @@ class ProfileUpdateRequest extends FormRequest
                 'required',
                 'string',
                 'lowercase',
-                app()->runningUnitTests() ? 'email' : 'email:rfc,dns',
+                'email',
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
