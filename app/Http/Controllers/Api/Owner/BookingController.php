@@ -94,6 +94,10 @@ class BookingController extends Controller
 
         $status = $request->status;
 
+        if ($status === 'confirmed' && (! $booking->payment || $booking->payment->status !== 'paid')) {
+            return $this->errorResponse('Không thể duyệt khi chưa thanh toán thành công!', 422);
+        }
+
         $booking->update([
             'status' => $status,
             'note' => $request->note ?? $booking->note,
