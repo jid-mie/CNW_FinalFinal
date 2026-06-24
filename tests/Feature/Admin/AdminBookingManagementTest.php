@@ -4,9 +4,6 @@ namespace Tests\Feature\Admin;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Field;
-use App\Models\TimeSlot;
-use App\Models\Booking;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -16,9 +13,13 @@ class AdminBookingManagementTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $customer;
+
     private int $sportId;
+
     private int $fieldId;
+
     private int $timeSlotId;
 
     protected function setUp(): void
@@ -131,7 +132,7 @@ class AdminBookingManagementTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('bookings', [
             'id' => $bookingId,
-            'status' => 'confirmed'
+            'status' => 'confirmed',
         ]);
     }
 
@@ -153,7 +154,7 @@ class AdminBookingManagementTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('bookings', [
             'id' => $bookingId,
-            'status' => 'cancelled'
+            'status' => 'cancelled',
         ]);
     }
 
@@ -175,7 +176,7 @@ class AdminBookingManagementTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('bookings', [
             'id' => $bookingId,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
     }
 }

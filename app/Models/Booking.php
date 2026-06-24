@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Booking
@@ -14,19 +15,18 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $customer_id
  * @property int $field_id
  * @property int $time_slot_id
- * @property \Illuminate\Support\Carbon $booking_date
+ * @property Carbon $booking_date
  * @property float $total_price
  * @property string $status
  * @property string|null $note
- * @property \Illuminate\Support\Carbon|null $confirmed_at
- * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- *
- * @property-read \App\Models\User $customer
- * @property-read \App\Models\Field $field
- * @property-read \App\Models\TimeSlot $timeSlot
- * @property-read \App\Models\Payment|null $payment
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $cancelled_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User $customer
+ * @property-read Field $field
+ * @property-read TimeSlot $timeSlot
+ * @property-read Payment|null $payment
  */
 class Booking extends Model
 {
@@ -34,14 +34,14 @@ class Booking extends Model
 
     // Giữ nguyên đầy đủ các trường dữ liệu từ nhánh chính của nhóm
     protected $fillable = [
-        'customer_id', 
-        'field_id', 
-        'time_slot_id', 
+        'customer_id',
+        'field_id',
+        'time_slot_id',
         'booking_date',
-        'total_price', 
-        'status', 
-        'note', 
-        'confirmed_at', 
+        'total_price',
+        'status',
+        'note',
+        'confirmed_at',
         'cancelled_at',
     ];
 

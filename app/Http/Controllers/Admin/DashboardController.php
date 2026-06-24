@@ -37,12 +37,12 @@ class DashboardController extends Controller
             $month = now()->subMonths($i);
             $monthStart = $month->copy()->startOfMonth();
             $monthEnd = $month->copy()->endOfMonth();
-            
+
             $monthlySum = (float) DB::table('payments')
                 ->whereIn('status', ['paid', 'success', 'completed'])
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->sum('amount');
-                
+
             $revenueLabels[] = $month->format('m/Y');
             $revenueData[] = $monthlySum;
         }
@@ -56,7 +56,7 @@ class DashboardController extends Controller
             ->select('sports.name', DB::raw('count(bookings.id) as count'))
             ->groupBy('sports.name')
             ->get();
-            
+
         $sportLabels = $sportsBookings->pluck('name')->toArray();
         $sportData = $sportsBookings->pluck('count')->toArray();
 

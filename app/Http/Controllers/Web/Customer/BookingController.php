@@ -7,8 +7,8 @@ use App\Models\Booking;
 use App\Models\Field;
 use App\Models\Sport;
 use App\Models\TimeSlot;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class BookingController extends Controller
 {
@@ -30,6 +30,7 @@ class BookingController extends Controller
     public function create()
     {
         $sports = Sport::where('is_active', true)->get();
+
         return view('customer.bookings.create', compact('sports'));
     }
 
@@ -49,7 +50,7 @@ class BookingController extends Controller
             return back()->with('error', 'Sân không hoạt động')->withInput();
         }
 
-        if (!$timeSlot->is_active) {
+        if (! $timeSlot->is_active) {
             return back()->with('error', 'Khung giờ không khả dụng')->withInput();
         }
 
@@ -89,7 +90,7 @@ class BookingController extends Controller
         $fields = Field::where('sport_id', $sport->id)
             ->where('status', 'active')
             ->get(['id', 'name', 'address', 'price_per_hour', 'code', 'description', 'image_url']);
- 
+
         return response()->json($fields);
     }
 
@@ -101,7 +102,7 @@ class BookingController extends Controller
         $request->validate(['date' => 'required|date']);
 
         $date = $request->date;
-        $dayOfWeek = strtolower(\Carbon\Carbon::parse($date)->format('l'));
+        $dayOfWeek = strtolower(Carbon::parse($date)->format('l'));
 
         $bookedSlotIds = Booking::where('field_id', $field->id)
             ->whereDate('booking_date', $date)
@@ -112,7 +113,8 @@ class BookingController extends Controller
             ->where('is_active', true)
             ->get()
             ->map(function ($slot) use ($bookedSlotIds) {
-                $slot->is_available = !$bookedSlotIds->contains($slot->id);
+                $slot->is_available = ! $bookedSlotIds->contains($slot->id);
+
                 return $slot;
             });
 

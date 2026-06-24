@@ -115,7 +115,7 @@ class TimeSlotController extends Controller
                 ->where('end_time', $endTime)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 $slot = $field->timeSlots()->create([
                     'start_time' => $startTime,
                     'end_time' => $endTime,
@@ -127,7 +127,7 @@ class TimeSlotController extends Controller
 
         return $this->successResponse(
             TimeSlotResource::collection(collect($created)),
-            'Đã tạo ' . count($created) . ' khung giờ mặc định (06:00 - 22:00)'
+            'Đã tạo '.count($created).' khung giờ mặc định (06:00 - 22:00)'
         );
     }
 }

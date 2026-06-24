@@ -4,13 +4,7 @@ namespace App\Http\Controllers\Web\Owner;
 
 use App\Models\Booking;
 use App\Models\Field;
-use App\Models\TimeSlot;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {

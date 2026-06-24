@@ -9,6 +9,7 @@ use App\Models\Role;
 use App\Models\Sport;
 use App\Models\TimeSlot;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -21,8 +22,8 @@ class DatabaseSeeder extends Seeder
     {
         // ── 1. Roles ──
         $roles = [
-            'admin'    => Role::create(['name' => 'admin',    'display_name' => 'Admin']),
-            'owner'    => Role::create(['name' => 'owner',    'display_name' => 'Chủ sân']),
+            'admin' => Role::create(['name' => 'admin',    'display_name' => 'Admin']),
+            'owner' => Role::create(['name' => 'owner',    'display_name' => 'Chủ sân']),
             'customer' => Role::create(['name' => 'customer', 'display_name' => 'Khách hàng']),
         ];
 
@@ -73,7 +74,7 @@ class DatabaseSeeder extends Seeder
                 'name' => $name,
                 'slug' => $slug,
                 'description' => $desc,
-                'image_url' => 'uploads/sports/' . $slug . '.png',
+                'image_url' => 'uploads/sports/'.$slug.'.png',
                 'is_active' => true,
             ]);
         }
@@ -103,14 +104,14 @@ class DatabaseSeeder extends Seeder
                 $fields[] = Field::create([
                     'owner_id' => $owner->id,
                     'sport_id' => $sport->id,
-                    'code' => 'SBD-' . str_pad(count($fields) + 1, 3, '0', STR_PAD_LEFT),
+                    'code' => 'SBD-'.str_pad(count($fields) + 1, 3, '0', STR_PAD_LEFT),
                     'name' => $fname,
-                    'description' => "Sân {$fname} - " . $sport->name . ', đạt chuẩn thi đấu.',
+                    'description' => "Sân {$fname} - ".$sport->name.', đạt chuẩn thi đấu.',
                     'address' => $addresses[$oi][$fi],
                     'price_per_hour' => $price,
                     'open_time' => '06:00',
                     'close_time' => '22:00',
-                    'image_url' => 'uploads/fields/san-' . $sport->slug . '.png',
+                    'image_url' => 'uploads/fields/san-'.$sport->slug.'.png',
                     'status' => ($fi == 2) ? 'maintenance' : 'active', // Tạo sẵn một vài sân bảo trì
                 ]);
             }
@@ -220,7 +221,7 @@ class DatabaseSeeder extends Seeder
                 'booking_date' => $scene['date'],
                 'total_price' => $field->price_per_hour,
                 'status' => $scene['status'],
-                'note' => 'Hóa đơn giả lập dòng tiền số ' . ($index + 1),
+                'note' => 'Hóa đơn giả lập dòng tiền số '.($index + 1),
                 'confirmed_at' => $scene['status'] !== 'pending' ? now() : null,
                 'cancelled_at' => $scene['status'] === 'cancelled' ? now() : null,
             ]);
@@ -228,10 +229,10 @@ class DatabaseSeeder extends Seeder
             Payment::create([
                 'booking_id' => $booking->id,
                 'amount' => $field->price_per_hour,
-                'method' => $scene['method'], 
-                'status' => $scene['p_status'], 
-                'transaction_code' => 'TXN-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT),
-                'paid_at' => $scene['p_status'] === 'paid' ? \Carbon\Carbon::parse($scene['date'] . ' 16:45:00') : null,
+                'method' => $scene['method'],
+                'status' => $scene['p_status'],
+                'transaction_code' => 'TXN-'.str_pad($index + 1, 3, '0', STR_PAD_LEFT),
+                'paid_at' => $scene['p_status'] === 'paid' ? Carbon::parse($scene['date'].' 16:45:00') : null,
             ]);
         }
 

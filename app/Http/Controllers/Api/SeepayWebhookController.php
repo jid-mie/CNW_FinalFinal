@@ -27,22 +27,23 @@ class SeepayWebhookController extends Controller
             // Check HMAC-SHA256 signature (Seepay gửi trong header X-Sepay-Signature)
             $rawBody = $request->getContent();
             $rawSignature = $request->header('X-Sepay-Signature')
-                ?? $request->header('X-Signature') 
+                ?? $request->header('X-Signature')
                 ?? $request->header('Signature')
                 ?? '';
-            
+
             if ($rawSignature) {
                 // Strip 'sha256=' prefix if present
                 $signature = preg_replace('/^sha256=/', '', $rawSignature);
                 $timestamp = $request->header('X-Sepay-Timestamp', '');
                 // Payload: timestamp + "." + raw body
-                $payload = $timestamp ? $timestamp . '.' . $rawBody : $rawBody;
+                $payload = $timestamp ? $timestamp.'.'.$rawBody : $rawBody;
                 $expectedSignature = hash_hmac('sha256', $payload, $expectedToken);
-                if (!hash_equals($expectedSignature, $signature)) {
-                    Log::warning('Seepay Webhook HMAC verification failed. Got: ' . $signature . ' Expected: ' . $expectedSignature . ' IP: ' . $request->ip());
+                if (! hash_equals($expectedSignature, $signature)) {
+                    Log::warning('Seepay Webhook HMAC verification failed. Got: '.$signature.' Expected: '.$expectedSignature.' IP: '.$request->ip());
+
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Invalid signature'
+                        'message' => 'Invalid signature',
                     ], 401);
                 }
             } else {
@@ -52,15 +53,16 @@ class SeepayWebhookController extends Controller
                 if ($authHeader && preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
                     $headerToken = $matches[1];
                 }
-                $token = $headerToken 
-                    ?? $request->header('x-seepay-token') 
+                $token = $headerToken
+                    ?? $request->header('x-seepay-token')
                     ?? $request->input('token');
 
                 if ($token !== $expectedToken) {
-                    Log::warning('Seepay Webhook unauthorized attempt. IP: ' . $request->ip());
+                    Log::warning('Seepay Webhook unauthorized attempt. IP: '.$request->ip());
+
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Unauthorized'
+                        'message' => 'Unauthorized',
                     ], 401);
                 }
             }
@@ -68,9 +70,9 @@ class SeepayWebhookController extends Controller
 
         // 2. Lấy nội dung chuyển khoản và số tiền nhận được
         // Seepay gửi các trường: code, content, transactionContent, transferAmount, accumulatedBalance, referenceCode...
-        $content = $request->input('code') 
-            ?? $request->input('content') 
-            ?? $request->input('transactionContent') 
+        $content = $request->input('code')
+            ?? $request->input('content')
+            ?? $request->input('transactionContent')
             ?? '';
 
         $transferAmount = (float) ($request->input('transferAmount') ?? $request->input('amount') ?? 0);
@@ -79,16 +81,17 @@ class SeepayWebhookController extends Controller
         if (empty($content)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Invalid webhook payload: Missing transaction content'
+                'message' => 'Invalid webhook payload: Missing transaction content',
             ], 422);
         }
 
         // 3. Phân tích nội dung chuyển khoản để tìm mã Booking (Định dạng PLAYxxxx)
-        if (!preg_match('/PLAY(\d+)/i', $content, $matches)) {
+        if (! preg_match('/PLAY(\d+)/i', $content, $matches)) {
             Log::warning("Seepay Webhook: Could not parse booking ID from content: '{$content}'");
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Booking ID not found in transaction content'
+                'message' => 'Booking ID not found in transaction content',
             ], 422);
         }
 
@@ -96,35 +99,38 @@ class SeepayWebhookController extends Controller
 
         // 4. Tìm kiếm Booking tương ứng
         $booking = Booking::with('payment')->find($bookingId);
-        if (!$booking) {
+        if (! $booking) {
             Log::warning("Seepay Webhook: Booking #{$bookingId} not found");
+
             return response()->json([
                 'status' => 'error',
-                'message' => "Booking #{$bookingId} not found"
+                'message' => "Booking #{$bookingId} not found",
             ], 404);
         }
 
         // 5. Nếu booking đã được thanh toán hoặc xác nhận rồi
         if ($booking->status === 'confirmed' || ($booking->payment && $booking->payment->status === 'paid')) {
             Log::info("Seepay Webhook: Booking #{$bookingId} is already paid or confirmed.");
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'Booking already processed'
+                'message' => 'Booking already processed',
             ], 200);
         }
 
         // 6. Kiểm tra số tiền chuyển khoản
         if ($transferAmount < (float) $booking->total_price) {
-            Log::warning("Seepay Webhook: Booking #{$bookingId} expects " . $booking->total_price . " but received " . $transferAmount);
+            Log::warning("Seepay Webhook: Booking #{$bookingId} expects ".$booking->total_price.' but received '.$transferAmount);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Insufficient payment amount'
+                'message' => 'Insufficient payment amount',
             ], 400);
         }
 
         // 7. Cập nhật cơ sở dữ liệu qua Transaction
         try {
-            DB::transaction(function () use ($booking, $transferAmount, $referenceCode, $request) {
+            DB::transaction(function () use ($booking, $transferAmount, $referenceCode) {
                 // Tạo hoặc cập nhật Payment
                 Payment::updateOrCreate(
                     ['booking_id' => $booking->id],
@@ -132,9 +138,9 @@ class SeepayWebhookController extends Controller
                         'amount' => $transferAmount,
                         'method' => 'bank_transfer',
                         'status' => 'paid',
-                        'transaction_code' => $referenceCode ?: 'SP-' . Str::upper(Str::random(10)),
+                        'transaction_code' => $referenceCode ?: 'SP-'.Str::upper(Str::random(10)),
                         'paid_at' => now(),
-                        'note' => 'Tự động thanh toán qua Seepay Webhook. Ref: ' . ($referenceCode ?: 'N/A'),
+                        'note' => 'Tự động thanh toán qua Seepay Webhook. Ref: '.($referenceCode ?: 'N/A'),
                     ]
                 );
 
@@ -149,14 +155,15 @@ class SeepayWebhookController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Payment processed and booking confirmed successfully'
+                'message' => 'Payment processed and booking confirmed successfully',
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error("Seepay Webhook failed to process transaction for Booking #{$bookingId}: " . $e->getMessage());
+            Log::error("Seepay Webhook failed to process transaction for Booking #{$bookingId}: ".$e->getMessage());
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Internal Server Error while updating booking status'
+                'message' => 'Internal Server Error while updating booking status',
             ], 500);
         }
     }

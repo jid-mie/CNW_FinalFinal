@@ -18,9 +18,13 @@ class CustomerApiTest extends TestCase
     use RefreshDatabase;
 
     private User $customer;
+
     private User $owner;
+
     private Sport $sport;
+
     private Field $field;
+
     private TimeSlot $timeSlot;
 
     protected function setUp(): void

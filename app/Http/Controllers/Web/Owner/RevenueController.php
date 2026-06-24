@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Web\Owner;
 
-use App\Models\Field;
 use App\Models\Booking;
+use App\Models\Field;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -42,24 +42,24 @@ class RevenueController extends Controller
             ->selectRaw('field_id, COUNT(*) as count, SUM(total_price) as revenue')
             ->groupBy('field_id')->with('field:id,name')
             ->get()
-            ->map(fn($b) => ['field_name' => $b->field->name ?? 'N/A', 'bookings' => $b->count, 'revenue' => (float) $b->revenue]);
+            ->map(fn ($b) => ['field_name' => $b->field->name ?? 'N/A', 'bookings' => $b->count, 'revenue' => (float) $b->revenue]);
 
         if ($request->export) {
             $headers = [
                 'Content-Type' => 'text/csv; charset=UTF-8',
-                'Content-Disposition' => 'attachment; filename="revenue_report_' . $startDate . '_' . $endDate . '.csv"',
+                'Content-Disposition' => 'attachment; filename="revenue_report_'.$startDate.'_'.$endDate.'.csv"',
                 'Pragma' => 'no-cache',
                 'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-                'Expires' => '0'
+                'Expires' => '0',
             ];
 
-            $callback = function() use ($daily, $byMethod, $byField, $totalRevenue, $totalBookings, $startDate, $endDate) {
+            $callback = function () use ($daily, $byMethod, $byField, $totalRevenue, $totalBookings, $startDate, $endDate) {
                 $file = fopen('php://output', 'w');
                 // Add UTF-8 BOM for Excel support
                 fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
 
-                fputcsv($file, ['BÁO CÁO DOANH THU (' . $startDate . ' đến ' . $endDate . ')']);
-                fputcsv($file, ['Tổng doanh thu', number_format($totalRevenue, 0, '', '') . ' VNĐ']);
+                fputcsv($file, ['BÁO CÁO DOANH THU ('.$startDate.' đến '.$endDate.')']);
+                fputcsv($file, ['Tổng doanh thu', number_format($totalRevenue, 0, '', '').' VNĐ']);
                 fputcsv($file, ['Tổng đặt lịch', $totalBookings]);
                 fputcsv($file, []);
 

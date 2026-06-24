@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Sport;
 use App\Models\Field;
+use App\Models\Role;
+use App\Models\Sport;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +16,9 @@ class ImageUploadTest extends TestCase
     use RefreshDatabase;
 
     private User $owner;
+
     private Sport $sport;
+
     private string $testImageContent;
 
     protected function setUp(): void
@@ -43,7 +45,7 @@ class ImageUploadTest extends TestCase
 
         // Đọc dữ liệu ảnh test được tạo sẵn
         $testImagePath = public_path('test_image.png');
-        if (!file_exists($testImagePath)) {
+        if (! file_exists($testImagePath)) {
             // Fallback nếu chưa có file
             @copy('https://raw.githubusercontent.com/laravel/framework/9.x/tests/Foundation/fixtures/placeholder.png', $testImagePath);
         }
@@ -61,7 +63,7 @@ class ImageUploadTest extends TestCase
 
         // Đảm bảo thư mục public/uploads/avatars tồn tại
         $avatarDir = public_path('uploads/avatars');
-        if (!file_exists($avatarDir)) {
+        if (! file_exists($avatarDir)) {
             mkdir($avatarDir, 0755, true);
         }
 
@@ -76,7 +78,7 @@ class ImageUploadTest extends TestCase
         $this->owner->refresh();
         $this->assertNotNull($this->owner->avatar);
 
-        $filePath = public_path('uploads/avatars/' . $this->owner->avatar);
+        $filePath = public_path('uploads/avatars/'.$this->owner->avatar);
         $this->assertFileExists($filePath);
 
         if (file_exists($filePath)) {

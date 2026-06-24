@@ -8,10 +8,10 @@ use App\Http\Resources\PaymentResource;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Traits\ApiResponse;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class PaymentsController extends Controller
 {
@@ -77,7 +77,7 @@ class PaymentsController extends Controller
 
                 return $payment->load('booking.field', 'booking.timeSlot');
             });
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $sqlState = $e->errorInfo[0] ?? null;
             if ($sqlState === '23000' || $sqlState === '23505' || str_contains($e->getMessage(), 'UNIQUE constraint failed') || str_contains($e->getMessage(), 'Duplicate entry')) {
                 return $this->errorResponse('Payment already exists for this booking', 409);
@@ -87,7 +87,7 @@ class PaymentsController extends Controller
 
         return $this->successResponse(
             new PaymentResource($payment),
-            'Payment request created. Please transfer to bank account with message: PLAY' . $booking->id,
+            'Payment request created. Please transfer to bank account with message: PLAY'.$booking->id,
             201
         );
     }

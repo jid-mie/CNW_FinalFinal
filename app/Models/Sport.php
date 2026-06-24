@@ -13,13 +13,13 @@ class Sport extends Model
 
     // Hòa trộn đầy đủ các trường của cả bạn và nhóm để form CRUD chạy không bị lỗi
     protected $fillable = [
-        'name', 
-        'slug', 
-        'description', 
-        'image', 
+        'name',
+        'slug',
+        'description',
+        'image',
         'image_url',
-        'badge', 
-        'is_active'
+        'badge',
+        'is_active',
     ];
 
     // Bộ ép kiểu dữ liệu chuẩn từ nhánh main

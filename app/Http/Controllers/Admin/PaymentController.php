@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
@@ -42,12 +42,12 @@ class PaymentController extends Controller
 
         // Bộ lọc tra cứu nhanh theo mã giao dịch
         if ($request->filled('search')) {
-            $query->where('transaction_code', 'LIKE', '%' . $request->search . '%');
+            $query->where('transaction_code', 'LIKE', '%'.$request->search.'%');
         }
 
         // 📊 TÍNH TOÁN SỐ LIỆU TỔNG CHO CÁC THẺ SỐ LIỆU
-        $totalRevenue   = (clone $query)->whereIn('status', ['paid', 'success', 'completed'])->sum('amount');
-        $unpaidAmount   = (clone $query)->whereIn('status', ['pending', 'unpaid', 'processing'])->sum('amount');
+        $totalRevenue = (clone $query)->whereIn('status', ['paid', 'success', 'completed'])->sum('amount');
+        $unpaidAmount = (clone $query)->whereIn('status', ['pending', 'unpaid', 'processing'])->sum('amount');
         $refundedAmount = (clone $query)->whereIn('status', ['refunded'])->sum('amount');
 
         // Phân trang kết quả (10 dòng/trang) và giữ lại tham số lọc trên URL
@@ -71,15 +71,15 @@ class PaymentController extends Controller
      */
     public function exportCSV(Request $request)
     {
-        $fileName = 'bao-cao-doanh-thu-paid-' . date('d-m-Y-His') . '.csv';
+        $fileName = 'bao-cao-doanh-thu-paid-'.date('d-m-Y-His').'.csv';
 
         // 1. Khởi tạo query kèm các bảng liên kết liên quan
         $query = Payment::with(['booking.customer', 'booking.field.sport']);
 
         // 🎯 THAY ĐỔI TẠI ĐÂY: Ép buộc hệ thống CHỈ LẤY các giao dịch có trạng thái là 'paid'
         $query->where('status', 'paid');
-        
-        // (Mẹo nhỏ: Nếu nhóm bạn quy ước nhiều từ khóa thành công như 'paid', 'success', 'completed', 
+
+        // (Mẹo nhỏ: Nếu nhóm bạn quy ước nhiều từ khóa thành công như 'paid', 'success', 'completed',
         // bạn có thể thay dòng trên thành: $query->whereIn('status', ['paid', 'success', 'completed']); nhé)
 
         // Vẫn giữ lại các bộ lọc khác nếu người dùng có chọn (Lọc ngày, phương thức, tìm kiếm...)
@@ -100,7 +100,7 @@ class PaymentController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->where('transaction_code', 'LIKE', '%' . $request->search . '%');
+            $query->where('transaction_code', 'LIKE', '%'.$request->search.'%');
         }
 
         // Lấy dữ liệu thỏa mãn điều kiện lọc
@@ -108,34 +108,34 @@ class PaymentController extends Controller
 
         // 2. Cấu hình Header tải file CSV định dạng UTF-8
         $headers = [
-            "Content-type"        => "text/csv; charset=UTF-8",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            'Content-type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=$fileName",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
 
         $columns = ['Mã Giao Dịch', 'Mã Lịch Đặt', 'Khách Hàng', 'Sân Đặt', 'Bộ Môn', 'Số Tiền Hóa Đơn', 'Phương Thức', 'Trạng Thái', 'Ngày Lịch Đặt'];
 
-        $callback = function() use ($payments, $columns) {
+        $callback = function () use ($payments, $columns) {
             $file = fopen('php://output', 'w');
-            
+
             // Chèn ký tự BOM để chống lỗi font tiếng Việt trong Excel
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
             fputcsv($file, $columns);
 
             foreach ($payments as $payment) {
                 fputcsv($file, [
-                    $payment->transaction_code ?? 'TXN-' . $payment->id,
-                    $payment->booking_id ? 'BK-' . $payment->booking_id : '---',
+                    $payment->transaction_code ?? 'TXN-'.$payment->id,
+                    $payment->booking_id ? 'BK-'.$payment->booking_id : '---',
                     $payment->booking->customer->name ?? 'Khách lẻ',
                     $payment->booking->field->name ?? '---',
                     $payment->booking->field->sport->name ?? '---',
-                    number_format($payment->amount) . 'đ',
+                    number_format($payment->amount).'đ',
                     strtoupper($payment->method),
                     strtoupper($payment->status),
-                    $payment->booking->booking_date ? Carbon::parse($payment->booking->booking_date)->format('d/m/Y') : '---'
+                    $payment->booking->booking_date ? Carbon::parse($payment->booking->booking_date)->format('d/m/Y') : '---',
                 ]);
             }
 

@@ -20,7 +20,7 @@ class FieldController extends Controller
         $this->cloudinary = new Cloudinary([
             'cloud' => [
                 'cloud_name' => config('cloudinary.cloud_name'),
-                'api_key'    => config('cloudinary.api_key'),
+                'api_key' => config('cloudinary.api_key'),
                 'api_secret' => config('cloudinary.api_secret'),
             ],
         ]);
@@ -35,9 +35,9 @@ class FieldController extends Controller
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -70,7 +70,7 @@ class FieldController extends Controller
             return $this->errorResponse('Bạn không có quyền xem sân này', 403);
         }
 
-        $field->load(['sport', 'timeSlots' => fn($q) => $q->orderBy('start_time')]);
+        $field->load(['sport', 'timeSlots' => fn ($q) => $q->orderBy('start_time')]);
 
         return $this->successResponse(
             new FieldResource($field),
@@ -136,7 +136,7 @@ class FieldController extends Controller
             $this->deleteFromCloudinary($field->image);
         }
 
-        $publicId = 'fields/field_' . $field->id . '_' . time();
+        $publicId = 'fields/field_'.$field->id.'_'.time();
 
         $result = $this->cloudinary->uploadApi()->upload(
             $request->file('image')->getRealPath(),
@@ -167,7 +167,7 @@ class FieldController extends Controller
             return $this->errorResponse('Bạn không có quyền thao tác trên sân này', 403);
         }
 
-        if (!$field->image) {
+        if (! $field->image) {
             return $this->errorResponse('Sân này chưa có ảnh', 404);
         }
 
@@ -184,7 +184,7 @@ class FieldController extends Controller
             $this->cloudinary->uploadApi()->destroy($publicId);
         } catch (\Exception $e) {
             // Log error but don't block the request
-            logger()->warning('Cloudinary delete failed: ' . $e->getMessage(), [
+            logger()->warning('Cloudinary delete failed: '.$e->getMessage(), [
                 'public_id' => $publicId,
             ]);
         }

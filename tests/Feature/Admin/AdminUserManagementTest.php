@@ -137,5 +137,3 @@ class AdminUserManagementTest extends TestCase
         $this->assertSoftDeleted($user);
     }
 }
-
-

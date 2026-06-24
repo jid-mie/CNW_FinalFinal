@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Field;
-use App\Models\TimeSlot;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class BookingController extends Controller
 {
@@ -17,16 +16,24 @@ class BookingController extends Controller
 
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%")->orWhere('phone', 'like', "%{$search}%"))
-                  ->orWhereHas('field', fn($f) => $f->where('name', 'like', "%{$search}%"));
+                $q->whereHas('customer', fn ($c) => $c->where('name', 'like', "%{$search}%")->orWhere('phone', 'like', "%{$search}%"))
+                    ->orWhereHas('field', fn ($f) => $f->where('name', 'like', "%{$search}%"));
             });
         }
-        if ($request->filled('status')) $query->where('status', $request->status);
-        if ($request->filled('field_id')) $query->where('field_id', $request->field_id);
-        if ($request->filled('date_from')) $query->whereDate('booking_date', '>=', $request->date_from);
-        if ($request->filled('date_to')) $query->whereDate('booking_date', '<=', $request->date_to);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('field_id')) {
+            $query->where('field_id', $request->field_id);
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('booking_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('booking_date', '<=', $request->date_to);
+        }
 
-        $sortField = in_array($request->sort_field, ['booking_date','total_price','status','created_at']) ? $request->sort_field : 'created_at';
+        $sortField = in_array($request->sort_field, ['booking_date', 'total_price', 'status', 'created_at']) ? $request->sort_field : 'created_at';
         $query->orderBy($sortField, $request->sort_dir === 'asc' ? 'asc' : 'desc');
 
         $bookings = $query->paginate(15)->withQueryString();
@@ -58,15 +65,15 @@ class BookingController extends Controller
 
         $bookingsQuery = Booking::whereBetween('booking_date', [$dateFrom, $dateTo])
             ->with(['customer', 'field', 'timeSlot', 'payment']);
-            
+
         if ($request->filled('field_id')) {
             $bookingsQuery->where('field_id', $request->field_id);
         }
 
         $bookings = $bookingsQuery->orderBy('booking_date')->orderBy('time_slot_id')
             ->get()
-            ->groupBy(fn($b) => $b->booking_date->format('Y-m-d'));
-            
+            ->groupBy(fn ($b) => $b->booking_date->format('Y-m-d'));
+
         $fields = Field::all();
 
         return view('admin.bookings.calendar', compact('bookings', 'year', 'month', 'dateFrom', 'dateTo', 'fields'));
@@ -74,8 +81,10 @@ class BookingController extends Controller
 
     public function confirm(Booking $booking)
     {
-        if ($booking->status !== 'pending') return back()->with('error', 'Booking không ở trạng thái chờ duyệt');
-        
+        if ($booking->status !== 'pending') {
+            return back()->with('error', 'Booking không ở trạng thái chờ duyệt');
+        }
+
         $booking->update(['status' => 'confirmed', 'confirmed_at' => now()]);
 
         // Auto-cancel other overlapping pending bookings on the same field, date and time slot
@@ -87,11 +96,11 @@ class BookingController extends Controller
             ->update([
                 'status' => 'cancelled',
                 'cancelled_at' => now(),
-                'note' => 'Hệ thống tự động hủy do khung giờ đã được duyệt cho khách hàng khác.'
+                'note' => 'Hệ thống tự động hủy do khung giờ đã được duyệt cho khách hàng khác.',
             ]);
 
-        $message = $cancelledCount > 0 
-            ? 'Đã duyệt đặt lịch và tự động hủy các lịch trùng.' 
+        $message = $cancelledCount > 0
+            ? 'Đã duyệt đặt lịch và tự động hủy các lịch trùng.'
             : 'Đã duyệt đặt lịch';
 
         return back()->with('success', $message);
@@ -99,16 +108,24 @@ class BookingController extends Controller
 
     public function cancel(Request $request, Booking $booking)
     {
-        if (!in_array($booking->status, ['pending', 'confirmed'])) return back()->with('error', 'Không thể huỷ');
+        if (! in_array($booking->status, ['pending', 'confirmed'])) {
+            return back()->with('error', 'Không thể huỷ');
+        }
         $booking->update(['status' => 'cancelled', 'cancelled_at' => now(), 'note' => $request->note ?? $booking->note]);
+
         return back()->with('success', 'Đã huỷ đặt lịch');
     }
 
     public function checkin(Booking $booking)
     {
-        if ($booking->status !== 'confirmed') return back()->with('error', 'Chỉ check-in booking đã duyệt');
-        if ($booking->booking_date->isFuture()) return back()->with('error', 'Không thể check-in trước ngày');
+        if ($booking->status !== 'confirmed') {
+            return back()->with('error', 'Chỉ check-in booking đã duyệt');
+        }
+        if ($booking->booking_date->isFuture()) {
+            return back()->with('error', 'Không thể check-in trước ngày');
+        }
         $booking->update(['status' => 'completed']);
+
         return back()->with('success', 'Check-in thành công');
     }
 }

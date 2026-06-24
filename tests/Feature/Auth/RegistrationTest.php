@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -18,7 +20,7 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
-        \Illuminate\Support\Facades\Cache::put('otp_test@example.com', '123456', 300);
+        Cache::put('otp_test@example.com', '123456', 300);
 
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -34,7 +36,7 @@ class RegistrationTest extends TestCase
 
     public function test_cannot_register_as_owner_via_web(): void
     {
-        $ownerRole = \App\Models\Role::firstOrCreate(
+        $ownerRole = Role::firstOrCreate(
             ['name' => 'owner'],
             ['display_name' => 'Owner']
         );
@@ -59,7 +61,4 @@ class RegistrationTest extends TestCase
         ]);
         $response->assertStatus(403);
     }
-
 }
-
-

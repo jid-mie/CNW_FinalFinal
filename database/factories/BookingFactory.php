@@ -3,9 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Booking;
-use App\Models\User;
 use App\Models\Field;
 use App\Models\TimeSlot;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Field;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -31,14 +30,14 @@ class DashboardController extends Controller
         $monthlyRevenue = Booking::whereHas('field', function ($query) use ($ownerId) {
             $query->where('owner_id', $ownerId);
         })
-        ->whereMonth('booking_date', now()->month)
-        ->whereYear('booking_date', now()->year)
-        ->where(function ($query) {
-            $query->whereHas('payment', function ($q) {
-                $q->where('status', 'paid');
-            })->orWhere('status', 'completed');
-        })
-        ->sum('total_price');
+            ->whereMonth('booking_date', now()->month)
+            ->whereYear('booking_date', now()->year)
+            ->where(function ($query) {
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 'paid');
+                })->orWhere('status', 'completed');
+            })
+            ->sum('total_price');
 
         // 5. Recent Bookings (max 5, ordered by booking_date + time_slot start_time desc)
         $recentBookings = Booking::with(['customer', 'field', 'timeSlot', 'payment'])

@@ -2,11 +2,12 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Sport;
 use App\Models\Field;
+use App\Models\Role;
+use App\Models\Sport;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -15,10 +16,15 @@ class ApiSecurityAndAuthTest extends TestCase
     use RefreshDatabase;
 
     private Role $adminRole;
+
     private Role $ownerRole;
+
     private Role $customerRole;
+
     private User $ownerUser;
+
     private User $customerUser;
+
     private Sport $sport;
 
     protected function setUp(): void
@@ -104,7 +110,7 @@ class ApiSecurityAndAuthTest extends TestCase
         // View other owner's field should return 403 Forbidden
         $response = $this->getJson("/api/owner/fields/{$otherField->id}");
         $response->assertStatus(403);
-        
+
         // Update other owner's field should return 403
         $response = $this->putJson("/api/owner/fields/{$otherField->id}", [
             'name' => 'Sân B',
@@ -172,7 +178,7 @@ class ApiSecurityAndAuthTest extends TestCase
      */
     public function test_api_auth_workflow(): void
     {
-        \Illuminate\Support\Facades\Cache::put('otp_newuser@api.com', '123456', 300);
+        Cache::put('otp_newuser@api.com', '123456', 300);
 
         // 1. Register a new user
         $registerResponse = $this->postJson('/api/register', [
@@ -202,8 +208,8 @@ class ApiSecurityAndAuthTest extends TestCase
                     'access_token',
                     'refresh_token',
                     'token_type',
-                    'expires_in'
-                ]
+                    'expires_in',
+                ],
             ]);
 
         $accessToken = $loginResponse->json('data.access_token');
@@ -226,8 +232,8 @@ class ApiSecurityAndAuthTest extends TestCase
                     'access_token',
                     'refresh_token',
                     'token_type',
-                    'expires_in'
-                ]
+                    'expires_in',
+                ],
             ]);
 
         $newAccessToken = $refreshResponse->json('data.access_token');

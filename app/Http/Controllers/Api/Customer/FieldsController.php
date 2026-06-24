@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FieldResource;
-use App\Http\Resources\TimeSlotResource;
 use App\Models\Field;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;

@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
-use App\Models\Sport;
 use App\Models\Field;
+use App\Models\Sport;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

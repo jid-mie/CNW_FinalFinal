@@ -15,16 +15,16 @@ class BookingController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = Booking::whereHas('field', fn($q) => $q->where('owner_id', $request->user()->id))
+        $query = Booking::whereHas('field', fn ($q) => $q->where('owner_id', $request->user()->id))
             ->with(['customer', 'field.sport', 'timeSlot', 'payment']);
 
         // Search
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%")
+                $q->whereHas('customer', fn ($c) => $c->where('name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%"))
-                  ->orWhereHas('field', fn($f) => $f->where('name', 'like', "%{$search}%"))
-                  ->orWhere('note', 'like', "%{$search}%");
+                    ->orWhereHas('field', fn ($f) => $f->where('name', 'like', "%{$search}%"))
+                    ->orWhere('note', 'like', "%{$search}%");
             });
         }
 
@@ -85,9 +85,9 @@ class BookingController extends Controller
             return $this->errorResponse('Bạn không có quyền xử lý đặt lịch này', 403);
         }
 
-        if (!in_array($booking->status, ['pending', 'confirmed'])) {
+        if (! in_array($booking->status, ['pending', 'confirmed'])) {
             return $this->errorResponse(
-                'Không thể thay đổi trạng thái hiện tại (' . $booking->status . ')',
+                'Không thể thay đổi trạng thái hiện tại ('.$booking->status.')',
                 422
             );
         }
@@ -122,7 +122,7 @@ class BookingController extends Controller
 
         if ($booking->status !== 'confirmed') {
             return $this->errorResponse(
-                'Chỉ có thể check-in đặt lịch đã được duyệt (trạng thái hiện tại: ' . $booking->status . ')',
+                'Chỉ có thể check-in đặt lịch đã được duyệt (trạng thái hiện tại: '.$booking->status.')',
                 422
             );
         }
@@ -144,16 +144,16 @@ class BookingController extends Controller
 
     public function pending(Request $request): JsonResponse
     {
-        $query = Booking::whereHas('field', fn($q) => $q->where('owner_id', $request->user()->id))
+        $query = Booking::whereHas('field', fn ($q) => $q->where('owner_id', $request->user()->id))
             ->where('status', 'pending')
             ->with(['customer', 'field.sport', 'timeSlot']);
 
         // Search
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%")
+                $q->whereHas('customer', fn ($c) => $c->where('name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%"))
-                  ->orWhereHas('field', fn($f) => $f->where('name', 'like', "%{$search}%"));
+                    ->orWhereHas('field', fn ($f) => $f->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -225,7 +225,7 @@ class BookingController extends Controller
         }
 
         // Default: last 30 days
-        if (!$request->filled('start_date') && !$request->filled('end_date')) {
+        if (! $request->filled('start_date') && ! $request->filled('end_date')) {
             $query->whereDate('booking_date', '>=', now()->subDays(30));
         }
 
@@ -239,7 +239,7 @@ class BookingController extends Controller
             ->groupBy('booking_date')
             ->orderBy('booking_date')
             ->get()
-            ->map(fn($b) => [
+            ->map(fn ($b) => [
                 'date' => $b->booking_date->format('Y-m-d'),
                 'bookings' => $b->count,
                 'revenue' => (float) $b->revenue,
@@ -251,7 +251,7 @@ class BookingController extends Controller
             ->selectRaw('payments.method, COUNT(*) as count, SUM(bookings.total_price) as revenue')
             ->groupBy('payments.method')
             ->get()
-            ->map(fn($b) => [
+            ->map(fn ($b) => [
                 'method' => $b->method,
                 'bookings' => $b->count,
                 'revenue' => (float) $b->revenue,
@@ -263,7 +263,7 @@ class BookingController extends Controller
             ->groupBy('field_id')
             ->with('field:id,name')
             ->get()
-            ->map(fn($b) => [
+            ->map(fn ($b) => [
                 'field_id' => $b->field_id,
                 'field_name' => $b->field->name ?? 'N/A',
                 'bookings' => $b->count,
@@ -292,16 +292,16 @@ class BookingController extends Controller
      */
     public function exportBookings(Request $request)
     {
-        $query = Booking::whereHas('field', fn($q) => $q->where('owner_id', $request->user()->id))
+        $query = Booking::whereHas('field', fn ($q) => $q->where('owner_id', $request->user()->id))
             ->with(['customer', 'field.sport', 'timeSlot', 'payment']);
 
         // Apply same filters as index
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
-                $q->whereHas('customer', fn($c) => $c->where('name', 'like', "%{$search}%")
+                $q->whereHas('customer', fn ($c) => $c->where('name', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%"))
-                  ->orWhereHas('field', fn($f) => $f->where('name', 'like', "%{$search}%"))
-                  ->orWhere('note', 'like', "%{$search}%");
+                    ->orWhereHas('field', fn ($f) => $f->where('name', 'like', "%{$search}%"))
+                    ->orWhere('note', 'like', "%{$search}%");
             });
         }
         if ($request->filled('status')) {
@@ -323,17 +323,17 @@ class BookingController extends Controller
         $query->orderBy('booking_date', 'desc');
 
         $bookings = $query->get();
-        $filename = 'bookings_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'bookings_'.now()->format('Ymd_His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
         $callback = function () use ($bookings) {
             $file = fopen('php://output', 'w');
             // BOM for UTF-8 Excel compatibility
-            fputs($file, "\xEF\xBB\xBF");
+            fwrite($file, "\xEF\xBB\xBF");
             fputcsv($file, ['ID', 'Khách hàng', 'SĐT', 'Sân', 'Ngày đặt', 'Giờ', 'Giá', 'Trạng thái', 'Thanh toán', 'Ghi chú', 'Ngày tạo']);
 
             foreach ($bookings as $b) {
@@ -343,7 +343,7 @@ class BookingController extends Controller
                     $b->customer?->phone ?? '',
                     $b->field?->name ?? 'N/A',
                     $b->booking_date?->format('d/m/Y'),
-                    ($b->timeSlot?->start_time?->format('H:i') ?? '') . ' - ' . ($b->timeSlot?->end_time?->format('H:i') ?? ''),
+                    ($b->timeSlot?->start_time?->format('H:i') ?? '').' - '.($b->timeSlot?->end_time?->format('H:i') ?? ''),
                     number_format($b->total_price, 0, ',', '.'),
                     $b->status,
                     $b->payment?->status ?? 'N/A',
@@ -374,7 +374,7 @@ class BookingController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('booking_date', '<=', $request->end_date);
         }
-        if (!$request->filled('start_date') && !$request->filled('end_date')) {
+        if (! $request->filled('start_date') && ! $request->filled('end_date')) {
             $query->whereDate('booking_date', '>=', now()->subDays(30));
         }
 
@@ -385,16 +385,16 @@ class BookingController extends Controller
             ->orderBy('booking_date')
             ->get();
 
-        $filename = 'revenue_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'revenue_'.now()->format('Ymd_His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
         $callback = function () use ($daily) {
             $file = fopen('php://output', 'w');
-            fputs($file, "\xEF\xBB\xBF");
+            fwrite($file, "\xEF\xBB\xBF");
             fputcsv($file, ['Ngày', 'Số lượng booking', 'Doanh thu']);
 
             foreach ($daily as $d) {
@@ -430,7 +430,7 @@ class BookingController extends Controller
             $dateTo = date('Y-m-t', strtotime($dateFrom));
         }
 
-        $bookings = Booking::whereHas('field', fn($q) => $q->where('owner_id', $userId))
+        $bookings = Booking::whereHas('field', fn ($q) => $q->where('owner_id', $userId))
             ->whereBetween('booking_date', [$dateFrom, $dateTo])
             ->with(['customer:id,name,phone', 'field:id,name,code', 'timeSlot:id,start_time,end_time', 'payment:id,booking_id,status,method'])
             ->orderBy('booking_date')
@@ -438,12 +438,12 @@ class BookingController extends Controller
             ->get();
 
         // Group by date
-        $byDate = $bookings->groupBy(fn($b) => $b->booking_date->format('Y-m-d'))
-            ->map(fn($items, $date) => [
+        $byDate = $bookings->groupBy(fn ($b) => $b->booking_date->format('Y-m-d'))
+            ->map(fn ($items, $date) => [
                 'date' => $date,
                 'day_of_week' => $items->first()->booking_date->dayName,
                 'total' => $items->count(),
-                'bookings' => $items->map(fn($b) => [
+                'bookings' => $items->map(fn ($b) => [
                     'id' => $b->id,
                     'field_id' => $b->field_id,
                     'field_name' => $b->field?->name,

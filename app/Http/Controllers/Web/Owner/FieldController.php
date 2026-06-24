@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Owner;
 
 use App\Models\Field;
+use App\Models\Sport;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -16,26 +17,31 @@ class FieldController extends Controller
         if ($search = $request->search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('address', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
-        if ($request->filled('status')) $query->where('status', $request->status);
-        if ($request->filled('sport_id')) $query->where('sport_id', $request->sport_id);
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('sport_id')) {
+            $query->where('sport_id', $request->sport_id);
+        }
 
-        $sortField = in_array($request->sort_field, ['name','price_per_hour','status','created_at']) ? $request->sort_field : 'created_at';
+        $sortField = in_array($request->sort_field, ['name', 'price_per_hour', 'status', 'created_at']) ? $request->sort_field : 'created_at';
         $sortDir = $request->sort_dir === 'asc' ? 'asc' : 'desc';
         $query->orderBy($sortField, $sortDir);
 
         $fields = $query->paginate(10)->withQueryString();
-        $sports = \App\Models\Sport::all();
+        $sports = Sport::all();
 
         return view('owner.fields.index', compact('fields', 'sports'));
     }
 
     public function create()
     {
-        $sports = \App\Models\Sport::all();
+        $sports = Sport::all();
+
         return view('owner.fields.create', compact('sports'));
     }
 
@@ -56,7 +62,7 @@ class FieldController extends Controller
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('fields', 'public');
-            $data['image_url'] = 'storage/' . $data['image'];
+            $data['image_url'] = 'storage/'.$data['image'];
         }
 
         auth()->user()->fields()->create($data);
@@ -66,14 +72,19 @@ class FieldController extends Controller
 
     public function edit(Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
-        $sports = \App\Models\Sport::all();
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
+        $sports = Sport::all();
+
         return view('owner.fields.edit', compact('field', 'sports'));
     }
 
     public function update(Request $request, Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -89,9 +100,11 @@ class FieldController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            if ($field->image) Storage::disk('public')->delete($field->image);
+            if ($field->image) {
+                Storage::disk('public')->delete($field->image);
+            }
             $data['image'] = $request->file('image')->store('fields', 'public');
-            $data['image_url'] = 'storage/' . $data['image'];
+            $data['image_url'] = 'storage/'.$data['image'];
         }
 
         $field->update($data);
@@ -101,15 +114,22 @@ class FieldController extends Controller
 
     public function destroy(Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
-        if ($field->image) Storage::disk('public')->delete($field->image);
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
+        if ($field->image) {
+            Storage::disk('public')->delete($field->image);
+        }
         $field->delete();
+
         return redirect()->route('owner.fields.index')->with('success', 'Xoá sân thành công');
     }
 
     public function toggleStatus(Request $request, Field $field)
     {
-        if ($field->owner_id !== auth()->id()) abort(403);
+        if ($field->owner_id !== auth()->id()) {
+            abort(403);
+        }
         $newStatus = $field->status === 'active' ? 'inactive' : 'active';
         $field->update(['status' => $newStatus]);
 
@@ -117,7 +137,7 @@ class FieldController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $field->status,
-                'message' => 'Cập nhật trạng thái sân thành công!'
+                'message' => 'Cập nhật trạng thái sân thành công!',
             ]);
         }
 

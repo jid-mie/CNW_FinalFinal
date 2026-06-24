@@ -10,8 +10,10 @@ use App\Models\Booking;
 use App\Models\Field;
 use App\Models\TimeSlot;
 use App\Traits\ApiResponse;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class BookingsController extends Controller
 {
@@ -68,7 +70,7 @@ class BookingsController extends Controller
                 'status' => 'pending',
                 'note' => $request->note,
             ]);
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             $sqlState = $e->errorInfo[0] ?? null;
             if ($sqlState === '23000' || $sqlState === '23505' || str_contains($e->getMessage(), 'UNIQUE constraint failed') || str_contains($e->getMessage(), 'Duplicate entry')) {
                 return $this->errorResponse('This time slot is already booked', 409);
@@ -128,7 +130,7 @@ class BookingsController extends Controller
         }
 
         $booking->status = 'cancelled';
-        $booking->cancelled_at = \Illuminate\Support\Carbon::now();
+        $booking->cancelled_at = Carbon::now();
         $booking->save();
 
         return $this->successResponse(

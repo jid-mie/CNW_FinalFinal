@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\FailedLoginAttempt;
-use Illuminate\Http\Request;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class SecurityController extends Controller
@@ -18,7 +17,7 @@ class SecurityController extends Controller
         $systemChecks = [
             [
                 'name' => 'Chế độ Debug (APP_DEBUG)',
-                'status' => !config('app.debug') ? 'secure' : 'warning',
+                'status' => ! config('app.debug') ? 'secure' : 'warning',
                 'value' => config('app.debug') ? 'BẬT (Không an toàn cho Product)' : 'TẮT (An toàn)',
                 'description' => 'Chế độ Debug chỉ nên được bật trong môi trường thử nghiệm (Local) và tắt khi triển khai chính thức.',
             ],
@@ -43,13 +42,13 @@ class SecurityController extends Controller
             [
                 'name' => 'Phiên bản PHP',
                 'status' => 'info',
-                'value' => 'PHP ' . PHP_VERSION,
+                'value' => 'PHP '.PHP_VERSION,
                 'description' => 'Phiên bản ngôn ngữ chạy mã nguồn phía Server.',
             ],
             [
                 'name' => 'Phiên bản Laravel',
                 'status' => 'info',
-                'value' => 'Laravel ' . app()->version(),
+                'value' => 'Laravel '.app()->version(),
                 'description' => 'Phiên bản framework sử dụng cho hệ thống.',
             ],
         ];
@@ -73,10 +72,11 @@ class SecurityController extends Controller
     public function toggleToken($id)
     {
         $token = PersonalAccessToken::findOrFail($id);
-        $token->is_active = !$token->is_active;
+        $token->is_active = ! $token->is_active;
         $token->save();
 
         $statusText = $token->is_active ? 'Kích hoạt lại' : 'Vô hiệu hóa';
+
         return redirect()->route('admin.security.index')->with('success', "{$statusText} Token API thành công!");
     }
 
@@ -86,6 +86,7 @@ class SecurityController extends Controller
     public function clearLogs()
     {
         FailedLoginAttempt::truncate();
+
         return redirect()->route('admin.security.index')->with('success', 'Đã xóa toàn bộ nhật ký đăng nhập thất bại!');
     }
 }

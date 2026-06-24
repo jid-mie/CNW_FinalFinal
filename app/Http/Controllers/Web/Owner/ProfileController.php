@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Web\Owner;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +11,7 @@ class ProfileController extends Controller
     public function index()
     {
         $user = auth()->user();
+
         return view('owner.profile.index', compact('user'));
     }
 
@@ -45,7 +45,7 @@ class ProfileController extends Controller
         ]);
 
         $user = auth()->user();
-        $name = 'owner_' . $user->id . '_' . time() . '.' . $request->file('avatar')->extension();
+        $name = 'owner_'.$user->id.'_'.time().'.'.$request->file('avatar')->extension();
         $request->file('avatar')->move(public_path('uploads/avatars'), $name);
         $user->update(['avatar' => $name]);
 

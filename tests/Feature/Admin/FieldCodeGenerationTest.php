@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Sport;
 use App\Models\Field;
+use App\Models\Role;
+use App\Models\Sport;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
