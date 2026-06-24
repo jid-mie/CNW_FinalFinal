@@ -13,17 +13,21 @@ use Illuminate\Http\Request;
 
 class FieldController extends Controller
 {
-    private Cloudinary $cloudinary;
+    private ?Cloudinary $cloudinary = null;
 
-    public function __construct()
+    private function getCloudinary(): Cloudinary
     {
-        $this->cloudinary = new Cloudinary([
-            'cloud' => [
-                'cloud_name' => config('cloudinary.cloud_name'),
-                'api_key' => config('cloudinary.api_key'),
-                'api_secret' => config('cloudinary.api_secret'),
-            ],
-        ]);
+        if ($this->cloudinary === null) {
+            $this->cloudinary = new Cloudinary([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key' => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+            ]);
+        }
+
+        return $this->cloudinary;
     }
 
     public function index(Request $request): JsonResponse
@@ -138,7 +142,7 @@ class FieldController extends Controller
 
         $publicId = 'fields/field_'.$field->id.'_'.time();
 
-        $result = $this->cloudinary->uploadApi()->upload(
+        $result = $this->getCloudinary()->uploadApi()->upload(
             $request->file('image')->getRealPath(),
             [
                 'public_id' => $publicId,
@@ -181,7 +185,7 @@ class FieldController extends Controller
     private function deleteFromCloudinary(string $publicId): void
     {
         try {
-            $this->cloudinary->uploadApi()->destroy($publicId);
+            $this->getCloudinary()->uploadApi()->destroy($publicId);
         } catch (\Exception $e) {
             // Log error but don't block the request
             logger()->warning('Cloudinary delete failed: '.$e->getMessage(), [
