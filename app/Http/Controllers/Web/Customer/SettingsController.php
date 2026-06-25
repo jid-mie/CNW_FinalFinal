@@ -23,14 +23,30 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . auth()->id(),
             'phone' => 'nullable|string|max:20',
-            'date_of_birth' => 'nullable|date|before:today',
+            'address' => 'nullable|string|max:255',
         ]);
 
         auth()->user()->update($validated);
 
         return back()->with('success', 'Thông tin cá nhân đã được cập nhật thành công.');
+    }
+
+    /**
+     * Upload/update avatar
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $user = auth()->user();
+        $name = 'customer_' . $user->id . '_' . time() . '.' . $request->file('avatar')->extension();
+        $request->file('avatar')->move(public_path('uploads/avatars'), $name);
+        $user->update(['avatar' => $name]);
+
+        return back()->with('success', 'Cập nhật ảnh đại diện thành công.');
     }
 
     /**
