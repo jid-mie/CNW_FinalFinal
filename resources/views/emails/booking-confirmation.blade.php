@@ -145,7 +145,7 @@
             <span class="info-label">Giờ đặt</span>
             <span class="info-value">
                 @if ($booking->timeSlot)
-                    {{ substr($booking->timeSlot->start_time, 0, 5) }} - {{ substr($booking->timeSlot->end_time, 0, 5) }}
+                    {{ \Illuminate\Support\Carbon::parse($booking->timeSlot->start_time)->format('H:i') }} - {{ \Illuminate\Support\Carbon::parse($booking->timeSlot->end_time)->format('H:i') }}
                 @else
                     N/A
                 @endif

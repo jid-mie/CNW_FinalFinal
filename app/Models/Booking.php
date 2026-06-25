@@ -9,6 +9,7 @@ use App\Mail\BookingConfirmationMail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 
 /**
