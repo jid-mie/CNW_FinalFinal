@@ -34,6 +34,23 @@ class SettingsController extends Controller
     }
 
     /**
+     * Upload/update avatar
+     */
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $user = auth()->user();
+        $name = 'customer_' . $user->id . '_' . time() . '.' . $request->file('avatar')->extension();
+        $request->file('avatar')->move(public_path('uploads/avatars'), $name);
+        $user->update(['avatar' => $name]);
+
+        return back()->with('success', 'Cập nhật ảnh đại diện thành công.');
+    }
+
+    /**
      * Update language preference
      */
     public function updateLanguage(Request $request)

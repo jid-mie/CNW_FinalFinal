@@ -124,6 +124,7 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
 
 use App\Http\Controllers\Web\Customer\BookingController as CustomerBookingController;
 use App\Http\Controllers\Web\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Web\Customer\SettingsController as CustomerSettingsController;
 
 // 5. Phân hệ của KHÁCH HÀNG (Customer Routes)
 Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer.')->group(function () {
@@ -139,6 +140,13 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
     // AJAX endpoints for booking form
     Route::get('/booking/sport/{sport}/fields', [CustomerBookingController::class, 'getFieldsBySport'])->name('booking.fields');
     Route::get('/booking/field/{field}/slots', [CustomerBookingController::class, 'getAvailableSlots'])->name('booking.slots');
+
+    // Settings / Profile management
+    Route::get('/settings', [CustomerSettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/profile', [CustomerSettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::post('/settings/avatar', [CustomerSettingsController::class, 'uploadAvatar'])->name('settings.avatar');
+    Route::post('/settings/language', [CustomerSettingsController::class, 'updateLanguage'])->name('settings.language');
+    Route::post('/settings/theme', [CustomerSettingsController::class, 'updateTheme'])->name('settings.theme');
 });
 
 // 6. Quản lý thông tin tài khoản cá nhân chung (Profile)
