@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FieldController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\SportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -79,6 +80,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
     Route::post('/security/tokens/{id}/toggle', [SecurityController::class, 'toggleToken'])->name('security.tokens.toggle');
     Route::post('/security/logs/clear', [SecurityController::class, 'clearLogs'])->name('security.logs.clear');
+
+    // ⚙️ Cài đặt tài khoản Admin
+    Route::get('/settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/profile', [AdminSettingsController::class, 'updateProfile'])->name('settings.profile');
+    Route::post('/settings/avatar', [AdminSettingsController::class, 'uploadAvatar'])->name('settings.avatar');
+    Route::post('/settings/language', [AdminSettingsController::class, 'updateLanguage'])->name('settings.language');
+    Route::post('/settings/theme', [AdminSettingsController::class, 'updateTheme'])->name('settings.theme');
+    Route::post('/settings/password', [AdminSettingsController::class, 'updatePassword'])->name('settings.password');
 });
 
 // 4. Phân hệ của CHỦ SÂN (Owner Routes)
@@ -120,6 +129,7 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
     Route::get('/profile', [OwnerProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [OwnerProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [OwnerProfileController::class, 'avatar'])->name('profile.avatar');
+    Route::put('/profile/preferences', [OwnerProfileController::class, 'preferences'])->name('profile.preferences');
 });
 
 use App\Http\Controllers\Web\Customer\BookingController as CustomerBookingController;

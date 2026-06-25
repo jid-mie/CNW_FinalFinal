@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-bold font-heading text-2xl text-[#0f172a] uppercase tracking-wide">Thông Tin Cá Nhân</h2>
+        <h2 class="font-bold font-heading text-2xl text-[#0f172a] uppercase tracking-wide">Cài Đặt Tài Khoản</h2>
     </x-slot>
     
     <div class="py-6 max-w-2xl mx-auto">
@@ -31,7 +31,7 @@
                         {{ strtoupper(substr($user->name, 0, 2)) }}
                     </span>
                 @endif
-                <form method="POST" action="{{ route('owner.profile.avatar') }}" enctype="multipart/form-data" class="flex flex-wrap items-center gap-3">
+                <form method="POST" action="{{ route('admin.settings.avatar') }}" enctype="multipart/form-data" class="flex flex-wrap items-center gap-3">
                     @csrf
                     <input type="file" name="avatar" accept="image/*" class="text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#0f172a] file:text-[#4ade80] hover:file:bg-slate-800 transition-all cursor-pointer">
                     <button type="submit" class="px-4 py-2 border border-[#e2e8f0] rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-50 transition-colors bg-white shadow-sm">Cập nhật ảnh</button>
@@ -45,8 +45,8 @@
                 <span class="w-1.5 h-3 bg-[#0f172a] rounded"></span>
                 Thông Tin Cá Nhân
             </h3>
-            <form method="POST" action="{{ route('owner.profile.update') }}">
-                @csrf @method('PUT')
+            <form method="POST" action="{{ route('admin.settings.profile') }}">
+                @csrf
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Họ tên <span class="text-red-500">*</span></label>
@@ -61,8 +61,8 @@
                         <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Nhập số điện thoại" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Địa chỉ cá nhân</label>
-                        <input type="text" name="address" value="{{ old('address', $user->address) }}" placeholder="Nhập địa chỉ của bạn" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Địa chỉ</label>
+                        <input type="text" name="address" value="{{ old('address', $user->address) }}" placeholder="Nhập địa chỉ" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                 </div>
                 <button type="submit" class="mt-6 px-6 py-2.5 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">Lưu thay đổi</button>
@@ -75,23 +75,23 @@
                 <span class="w-1.5 h-3 bg-[#0f172a] rounded"></span>
                 Đổi Mật Khẩu
             </h3>
-            <form method="POST" action="{{ route('owner.profile.update') }}">
-                @csrf @method('PUT')
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form method="POST" action="{{ route('admin.settings.password') }}">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div>
                         <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Mật khẩu hiện tại</label>
-                        <input type="password" name="current_password" placeholder="••••••••" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                        <input type="password" name="current_password" required class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                     <div>
                         <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Mật khẩu mới</label>
-                        <input type="password" name="new_password" placeholder="Tối thiểu 8 ký tự" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                        <input type="password" name="new_password" required class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Nhập lại mật khẩu</label>
-                        <input type="password" name="new_password_confirmation" placeholder="Xác nhận mật khẩu" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Xác nhận mật khẩu mới</label>
+                        <input type="password" name="new_password_confirmation" required class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                 </div>
-                <button type="submit" class="mt-6 px-6 py-2.5 border border-[#e2e8f0] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors bg-white shadow-sm">Cập nhật mật khẩu</button>
+                <button type="submit" class="mt-4 px-6 py-2.5 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">Đổi mật khẩu</button>
             </form>
         </div>
 
@@ -101,26 +101,34 @@
                 <span class="w-1.5 h-3 bg-[#0f172a] rounded"></span>
                 Tùy Chỉnh Giao Diện
             </h3>
-            <form method="POST" action="{{ route('owner.profile.preferences') }}">
-                @csrf @method('PUT')
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Ngôn ngữ</label>
-                        <select name="language_preference" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all bg-white">
-                            <option value="vi" {{ $user->language_preference == 'vi' ? 'selected' : '' }}>Tiếng Việt</option>
-                            <option value="en" {{ $user->language_preference == 'en' ? 'selected' : '' }}>English</option>
-                        </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Language -->
+                <form method="POST" action="{{ route('admin.settings.language') }}">
+                    @csrf
+                    <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Ngôn ngữ</label>
+                    <div class="flex gap-3">
+                        <button type="submit" name="language" value="vi" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ $user->language_preference === 'vi' ? 'bg-[#0f172a] text-[#4ade80] shadow-sm' : 'border border-[#e2e8f0] hover:bg-slate-50' }}">
+                            🇻🇳 Tiếng Việt
+                        </button>
+                        <button type="submit" name="language" value="en" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ $user->language_preference === 'en' ? 'bg-[#0f172a] text-[#4ade80] shadow-sm' : 'border border-[#e2e8f0] hover:bg-slate-50' }}">
+                            🇬🇧 English
+                        </button>
                     </div>
-                    <div>
-                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Chủ đề</label>
-                        <select name="theme_preference" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all bg-white">
-                            <option value="light" {{ $user->theme_preference == 'light' ? 'selected' : '' }}>Sáng</option>
-                            <option value="dark" {{ $user->theme_preference == 'dark' ? 'selected' : '' }}>Tối</option>
-                        </select>
+                </form>
+                <!-- Theme -->
+                <form method="POST" action="{{ route('admin.settings.theme') }}">
+                    @csrf
+                    <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Chủ đề</label>
+                    <div class="flex gap-3">
+                        <button type="submit" name="theme" value="light" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ $user->theme_preference === 'light' || !$user->theme_preference ? 'bg-[#0f172a] text-[#4ade80] shadow-sm' : 'border border-[#e2e8f0] hover:bg-slate-50' }}">
+                            ☀️ Sáng
+                        </button>
+                        <button type="submit" name="theme" value="dark" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ $user->theme_preference === 'dark' ? 'bg-[#0f172a] text-[#4ade80] shadow-sm' : 'border border-[#e2e8f0] hover:bg-slate-50' }}">
+                            🌙 Tối
+                        </button>
                     </div>
-                </div>
-                <button type="submit" class="mt-6 px-6 py-2.5 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">Lưu tùy chỉnh</button>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

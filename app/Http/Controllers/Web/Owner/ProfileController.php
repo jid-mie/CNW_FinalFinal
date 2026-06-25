@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\Owner;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
@@ -50,5 +51,17 @@ class ProfileController extends Controller
         $user->update(['avatar' => $name]);
 
         return back()->with('success', 'Cập nhật ảnh đại diện thành công');
+    }
+
+    public function preferences(Request $request)
+    {
+        $data = $request->validate([
+            'language_preference' => 'required|in:vi,en',
+            'theme_preference' => 'required|in:light,dark',
+        ]);
+
+        auth()->user()->update($data);
+
+        return back()->with('success', 'Cập nhật tùy chỉnh giao diện thành công');
     }
 }
