@@ -31,7 +31,7 @@
         <!-- Filter tabs -->
         <div class="mb-8 flex flex-wrap gap-2.5 bg-slate-100 p-1.5 rounded-2xl max-w-max">
             <a href="{{ route('customer.bookings.index') }}" 
-               class="px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all {{ !request('status') ? 'bg-slate-900 text-[#3cd882] shadow-sm' : 'text-slate-600 hover:text-slate-950' }}">
+                class="px-4 py-2 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all {{ !request('status') ? 'bg-slate-900 text-[#3cd882] shadow-sm' : 'text-slate-600 hover:text-slate-950' }}">
                 Tất cả
             </a>
             @foreach(['pending' => 'Chờ duyệt', 'confirmed' => 'Đã xác nhận', 'completed' => 'Hoàn thành', 'cancelled' => 'Đã hủy'] as $val => $label)

@@ -176,6 +176,14 @@
         startPolling(bookingId);
     }
 
+    function openVietQRModalFromButton(button) {
+        const bookingId = button.dataset.bookingId;
+        const fieldName = button.dataset.fieldName;
+        const amount = Number(button.dataset.amount || 0);
+
+        openVietQRModal(bookingId, fieldName, amount);
+    }
+
     function closeVietQRModal() {
         stopPolling();
         
@@ -208,7 +216,7 @@
                 .catch(error => {
                     console.error('Error polling booking status:', error);
                 });
-        }, 3000);
+        }, 1000);
     }
 
     function stopPolling() {

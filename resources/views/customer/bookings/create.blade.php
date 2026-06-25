@@ -64,7 +64,7 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                     @foreach ($sports as $sport)
-                        <div @click="selectSport({{ $sport->id }})"
+                            <div @click="selectSport({{ $sport->id }})"
                              :class="selectedSport === {{ $sport->id }} ? 'border-[#3cd882] bg-emerald-50/20 ring-4 ring-emerald-500/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/30'"
                              class="relative border-2 rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 hover:shadow-md group">
                             
@@ -92,12 +92,6 @@
                         </div>
                     @endforeach
                 </div>
-                <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-                    <button type="button" @click="nextStep" :disabled="!selectedSport" 
-                            class="px-8 py-3 bg-slate-900 text-[#3cd882] hover:bg-slate-800 rounded-2xl font-black uppercase tracking-wider text-xs shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        Tiếp theo
-                    </button>
-                </div>
             </div>
 
             <!-- Step 2: Chọn sân -->
@@ -119,7 +113,7 @@
 
                 <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <template x-for="field in fields" :key="field.id">
-                        <div @click="selectField(field.id)"
+                            <div @click="selectField(field.id)"
                              :class="selectedField === field.id ? 'border-[#3cd882] bg-emerald-50/10 ring-4 ring-emerald-500/10' : 'border-slate-100 hover:border-slate-300 hover:bg-slate-50/30'"
                              class="relative border-2 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:shadow-md flex flex-col justify-between group overflow-hidden">
                             
@@ -173,12 +167,8 @@
                         </div>
                     </template>
                 </div>
-                <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between">
+                <div class="mt-8 pt-6 border-t border-slate-100 flex justify-start">
                     <button type="button" @click="prevStep" class="px-6 py-3 border border-slate-200 rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors">Quay lại</button>
-                    <button type="button" @click="nextStep" :disabled="!selectedField" 
-                            class="px-8 py-3 bg-slate-900 text-[#3cd882] hover:bg-slate-800 rounded-2xl font-black uppercase tracking-wider text-xs shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        Tiếp theo
-                    </button>
                 </div>
             </div>
 
@@ -301,6 +291,7 @@
                     this.selectedSlot = null;
                     this.selectedDate = '';
                     this.slots = [];
+                    this.currentStep = 2;
                     this.loadFields();
                 },
 
@@ -321,6 +312,7 @@
                     this.selectedSlot = null;
                     this.selectedDate = '';
                     this.slots = [];
+                    this.currentStep = 3;
                 },
 
                 async loadSlots() {
