@@ -115,6 +115,46 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm">
+                    <div class="flex items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h3 class="text-lg font-black text-slate-900 uppercase tracking-wide">Lịch Đặt Gần Đây</h3>
+                            <p class="text-xs text-slate-500 mt-1 font-medium">Theo dõi nhanh các lịch đặt sân mới nhất của bạn.</p>
+                        </div>
+                        <a href="{{ route('customer.bookings.index') }}" class="text-xs font-bold text-slate-900 bg-slate-50 hover:bg-slate-100 px-3.5 py-2 rounded-xl transition-all border border-slate-100">
+                            Xem tất cả
+                        </a>
+                    </div>
+
+                    <div class="space-y-3">
+                        @forelse ($bookings as $booking)
+                            @php
+                                $statusMap = [
+                                    'pending' => ['CHỜ DUYỆT', 'bg-amber-100 text-amber-800'],
+                                    'confirmed' => ['ĐÃ XÁC NHẬN', 'bg-emerald-100 text-emerald-800'],
+                                    'completed' => ['HOÀN THÀNH', 'bg-blue-100 text-blue-800'],
+                                    'cancelled' => ['ĐÃ HỦY', 'bg-rose-100 text-rose-800'],
+                                ];
+                                [$statusLabel, $statusClass] = $statusMap[$booking->status] ?? [strtoupper($booking->status), 'bg-slate-100 text-slate-700'];
+                            @endphp
+                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                                <div>
+                                    <p class="text-sm font-black text-slate-900">{{ optional($booking->field)->name ?? 'Sân đã xóa' }}</p>
+                                    <p class="text-xs text-slate-500 mt-1 font-semibold">
+                                        {{ optional($booking->field?->sport)->name ?? 'Thể thao' }} · {{ \Illuminate\Support\Carbon::parse($booking->booking_date)->format('d/m/Y') }}
+                                        @if ($booking->timeSlot)
+                                            · {{ substr($booking->timeSlot->start_time, 0, 5) }} - {{ substr($booking->timeSlot->end_time, 0, 5) }}
+                                        @endif
+                                    </p>
+                                </div>
+                                <span class="shrink-0 rounded-full px-3 py-1 text-[10px] font-black tracking-wider {{ $statusClass }}">{{ $statusLabel }}</span>
+                            </div>
+                        @empty
+                            <p class="text-sm text-slate-500 font-semibold">Bạn chưa có lịch đặt sân nào.</p>
+                        @endforelse
+                    </div>
+                </div>
             </div>
 
             <div class="space-y-6">
