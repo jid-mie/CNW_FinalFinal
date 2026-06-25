@@ -147,6 +147,7 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer')->name('customer
     Route::post('/settings/avatar', [CustomerSettingsController::class, 'uploadAvatar'])->name('settings.avatar');
     Route::post('/settings/language', [CustomerSettingsController::class, 'updateLanguage'])->name('settings.language');
     Route::post('/settings/theme', [CustomerSettingsController::class, 'updateTheme'])->name('settings.theme');
+    Route::post('/settings/password', [CustomerSettingsController::class, 'updatePassword'])->name('settings.password');
 });
 
 // 6. Quản lý thông tin tài khoản cá nhân chung (Profile)

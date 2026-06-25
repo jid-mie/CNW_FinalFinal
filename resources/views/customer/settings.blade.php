@@ -69,6 +69,32 @@
             </form>
         </div>
 
+        <!-- Change Password -->
+        <div class="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm mt-6">
+            <h3 class="font-bold font-heading text-xs text-[#0f172a] uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                <span class="w-1.5 h-3 bg-[#0f172a] rounded"></span>
+                Đổi Mật Khẩu
+            </h3>
+            <form method="POST" action="{{ route('customer.settings.password') }}">
+                @csrf
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div>
+                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Mật khẩu hiện tại</label>
+                        <input type="password" name="current_password" required class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Mật khẩu mới</label>
+                        <input type="password" name="new_password" required class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Xác nhận mật khẩu mới</label>
+                        <input type="password" name="new_password_confirmation" required class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                    </div>
+                </div>
+                <button type="submit" class="mt-4 px-6 py-2.5 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">Đổi mật khẩu</button>
+            </form>
+        </div>
+
         <!-- Language & Theme -->
         <div class="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-sm mt-6">
             <h3 class="font-bold font-heading text-xs text-[#0f172a] uppercase tracking-wider mb-4 flex items-center gap-1.5">

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Web\Customer;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class SettingsController extends Controller
 {
@@ -79,5 +81,22 @@ class SettingsController extends Controller
         ]);
 
         return back()->with('success', 'Chủ đề đã được cập nhật.');
+    }
+
+    /**
+     * Change password
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        auth()->user()->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return back()->with('success', 'Mật khẩu đã được thay đổi thành công.');
     }
 }
