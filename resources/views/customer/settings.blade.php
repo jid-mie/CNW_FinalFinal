@@ -61,8 +61,8 @@
                         <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Nhập số điện thoại" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Ngày sinh</label>
-                        <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $user->date_of_birth) }}" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
+                        <label class="text-[11px] font-bold text-[#45464d] uppercase tracking-wider block mb-1.5">Địa chỉ</label>
+                        <input type="text" name="address" value="{{ old('address', $user->address) }}" placeholder="Nhập địa chỉ" class="w-full px-3.5 py-2 border border-[#e2e8f0] focus:ring-2 focus:ring-[#0f172a]/10 rounded-lg text-sm focus:outline-none focus:border-[#0f172a] transition-all">
                     </div>
                 </div>
                 <button type="submit" class="mt-6 px-6 py-2.5 bg-[#0f172a] text-[#4ade80] rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm">Lưu thay đổi</button>

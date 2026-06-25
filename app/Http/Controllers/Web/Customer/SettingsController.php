@@ -23,9 +23,8 @@ class SettingsController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . auth()->id(),
             'phone' => 'nullable|string|max:20',
-            'date_of_birth' => 'nullable|date|before:today',
+            'address' => 'nullable|string|max:255',
         ]);
 
         auth()->user()->update($validated);
