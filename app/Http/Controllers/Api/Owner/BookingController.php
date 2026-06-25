@@ -105,6 +105,10 @@ class BookingController extends Controller
             'cancelled_at' => $status === 'cancelled' ? now() : $booking->cancelled_at,
         ]);
 
+        if ($status === 'confirmed') {
+            $booking->refresh()->sendConfirmationEmail();
+        }
+
         $message = $status === 'confirmed'
             ? 'Đã duyệt đặt lịch thành công'
             : 'Đã từ chối đặt lịch';

@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Mail\BookingConfirmationMail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 /**
  * App\Models\Booking
@@ -78,5 +81,24 @@ class Booking extends Model
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
+    }
+
+    public function sendConfirmationEmail(): void
+    {
+        $this->loadMissing(['customer', 'field.sport', 'timeSlot', 'payment']);
+
+        if (! $this->customer?->email) {
+            return;
+        }
+
+        try {
+            Mail::to($this->customer->email)->send(new BookingConfirmationMail($this));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send booking confirmation email', [
+                'booking_id' => $this->id,
+                'customer_email' => $this->customer->email,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

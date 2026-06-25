@@ -91,6 +91,7 @@ class BookingController extends Controller
         }
 
         $booking->update(['status' => 'confirmed', 'confirmed_at' => now()]);
+        $booking->refresh()->sendConfirmationEmail();
 
         // Auto-cancel other overlapping pending bookings on the same field, date and time slot
         $cancelledCount = Booking::where('field_id', $booking->field_id)

@@ -151,7 +151,9 @@ class SeepayWebhookController extends Controller
                 ]);
             });
 
-            Log::info("Seepay Webhook: Booking #{$bookingId} successfully confirmed and payment record created.");
+            $booking->refresh()->sendConfirmationEmail();
+
+            Log::info("Seepay Webhook: Booking #{$bookingId} successfully confirmed, payment record created and confirmation email sent.");
 
             return response()->json([
                 'status' => 'success',
